@@ -1,4 +1,7 @@
 node_modules/
 build/
+
 public/*.js
 public/*.txt
+
+test/test-config.yml
