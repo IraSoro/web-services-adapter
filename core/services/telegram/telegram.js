@@ -5,14 +5,11 @@ import { Service } from "../service.js";
 
 
 export class Telegram extends Service {
-    constructor() {
+    constructor(cfg) {
         super("Telegram");
-    }
 
-    configure(cfg) {
         this.__token = cfg.token;
-        this.__bot = new Telegraf(this.__token);
-        this._configured = true;
+        this.__bot = new Telegraf(cfg.token);
     }
 
     async check() {

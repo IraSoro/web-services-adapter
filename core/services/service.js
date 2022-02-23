@@ -4,16 +4,10 @@ export class Service {
             throw Error("BaseService is abstract class");
         }
         this.__name = name;
-        this._configured = false;
     }
 
-    getName() {
+    get name() {
         return this.__name;
-    }
-
-    configure(cfg) {
-        cfg;
-        throw Error("Virtual function 'configure' not implemented");
     }
 
     async check() {
