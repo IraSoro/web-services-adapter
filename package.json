@@ -8,7 +8,7 @@
     "start": "node ./main.js",
     "clean": "rm -rf ./public/app.bundle.* ./build",
     "check": "eslint ./",
-    "build:dev": "npm run check && webpack --mode='development' && cp ./build/app.bundle.js ./public/app.bundle.js"
+    "build:dev": "npm run check && webpack --mode=development && cp ./build/app.bundle.js ./public/app.bundle.js"
   },
   "author": "Irina Sorokina",
   "contributors": [
