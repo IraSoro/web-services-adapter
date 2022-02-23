@@ -1,29 +1,23 @@
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { BaseService } from "../base-service/base-service.js";
+import { Service } from "../service.js";
 
 
-export class Telegram extends BaseService {
+export class Telegram extends Service {
     constructor(ctx) {
-        super("Telegram");
+        super();
 
         this.__token = ctx.token;
         this.__bot = new Telegraf(this.__token);
     }
 
-    get commands() {
-        return [
-            "Send Message"
-        ];
-    }
-
-    async test() {
+    async check() {
         try {
             const url = `https://api.telegram.org/bot${this.__token}/getMe`;
             const resp = await fetch(url);
             if (resp.status === 200) {
-                return Promise.resolve(resp);
+                return resp;
             }
             return Promise.reject(resp);
         } catch (err) {
