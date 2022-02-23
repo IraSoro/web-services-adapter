@@ -3,7 +3,7 @@ import v1Router from "./v1-router.js";
 /**
  * Creates express.Router based on the API version
  * @param {string} apiVersion
- * @returns {(express.Router|undefined)}
+ * @returns {(Express.Router|undefined)}
  */
 export default function (apiVersion) {
     switch (apiVersion) {
