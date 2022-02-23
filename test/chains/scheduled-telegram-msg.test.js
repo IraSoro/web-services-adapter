@@ -7,14 +7,24 @@ import {
 
 import { Config } from "../../core/config.js";
 import { Telegram } from "../../core/services/telegram/telegram.js";
+import { Scheduler } from "../../core/apps/scheduler/scheduler.js";
 
 describe("Scheduled Telegram message", () => {
-    const cfg = new Config("./test/test-config.yml");
-    const telegramConfig = cfg.getConfigForService("telegram");
+    let cfg = null;
+    let telegramConfig = null;
 
     let telegram = null;
+    let dateTime = null;
 
-    it("Configure Telegram", async () => {
+    it("Parse test-config.yml file", () => {
+        cfg = new Config("./test/test-config.json");
+    });
+
+    it("Get configuration files", () => {
+        telegramConfig = cfg.getConfigForService("telegram");
+    });
+
+    it("Set up Telegram", async () => {
         telegram = new Telegram(telegramConfig);
 
         try {
@@ -27,11 +37,19 @@ describe("Scheduled Telegram message", () => {
 
         telegram.setCommand("Send Message", {
             chatID: telegramConfig.chatID,
-            msg: telegramConfig.msg
+            message: telegramConfig.message
+        });
+    });
+
+    it("Set up the Scheduler to send a message after 2 seconds", () => {
+        dateTime = new Scheduler();
+        dateTime.setTrigger("DateTime", {
+            dateTime: new Date().getTime() + 2000
         });
     });
 
     it("Execution", async () => {
+        await dateTime.exec();
         await telegram.exec();
     });
 });
