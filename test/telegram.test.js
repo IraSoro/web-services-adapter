@@ -10,9 +10,8 @@ import { Telegram } from "../core/services/telegram/telegram.js";
 
 const token = process.env.TELEGRAM_TOKEN ?? "";
 
-const service = new Telegram({
-    token: token
-});
+const service = new Telegram();
+service.configure({ token: token });
 
 describe("Telegram", () => {
     it("'TELEGRAM_TOKEN' env variable should be non-empty string", () => {

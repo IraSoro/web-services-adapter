@@ -5,14 +5,20 @@ import { Service } from "../service.js";
 
 
 export class Telegram extends Service {
-    constructor(ctx) {
-        super();
+    constructor() {
+        super("Telegram");
+    }
 
-        this.__token = ctx.token;
+    configure(cfg) {
+        this.__token = cfg.token;
         this.__bot = new Telegraf(this.__token);
+        this._configured = true;
     }
 
     async check() {
+        if (!this._configured) {
+            return Promise.reject(this.getName(), "not configured");
+        }
         try {
             const url = `https://api.telegram.org/bot${this.__token}/getMe`;
             const resp = await fetch(url);
