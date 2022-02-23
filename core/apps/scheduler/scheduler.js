@@ -1,5 +1,7 @@
 export class Scheduler {
     constructor() {
+        this.timeouts = [];
+
         this.triggers = {
             "DateTime": async (ctx) => {
                 const currentDateTime = new Date();
@@ -14,9 +16,9 @@ export class Scheduler {
                 }
 
                 return new Promise((resolve) => {
-                    setTimeout(resolve, schedulerDateTime - currentDateTime);
+                    this.timeouts.push(setTimeout(resolve, schedulerDateTime - currentDateTime));
                 });
-            },
+            }
         };
     }
 
@@ -41,5 +43,13 @@ export class Scheduler {
             return Promise.reject("Trigger is null");
         }
         return this.trigger();
+    }
+
+    async cancel() {
+        for (const [i, timeout] of Object.entries(this.timeouts)) {
+            clearTimeout(timeout);
+            this.timeouts.splice(i, 1);
+        }
+        this.trigger = () => { };
     }
 }

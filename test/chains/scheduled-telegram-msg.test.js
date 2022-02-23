@@ -52,4 +52,18 @@ describe("Scheduled Telegram message", () => {
         await dateTime.exec();
         await telegram.exec();
     });
+
+    it("Set up the Scheduler to send a message after 2 seconds", () => {
+        dateTime.setTrigger("DateTime", {
+            dateTime: new Date().getTime() + 2000
+        });
+    });
+
+    it("Execution with canceled timeout", async () => {
+        await dateTime.cancel();
+        const start = new Date();
+        await dateTime.exec();
+        await telegram.exec();
+        assert(new Date() - start < 2000, "Waiting too long");
+    });
 });
