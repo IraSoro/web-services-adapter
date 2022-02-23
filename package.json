@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "mocha --parallel",
+    "test": "npm run test:chains",
+    "test:chains": "mocha ./test/chains/ --parallel",
     "start": "node ./main.js",
     "clean": "rm -rf ./public/app.bundle.* ./build",
     "check": "eslint ./",

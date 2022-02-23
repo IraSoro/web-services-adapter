@@ -1,23 +1,33 @@
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { Service } from "../service.js";
-
-
-export class Telegram extends Service {
+export class Telegram {
     constructor(cfg) {
-        super("Telegram");
+        this.token = cfg.token;
+        this.bot = new Telegraf(this.token);
 
-        this.__token = cfg.token;
-        this.__bot = new Telegraf(cfg.token);
+        this.commands = {
+            "Send Message": (ctx) => this.bot.telegram.sendMessage(ctx.chatID, ctx.msg)
+            // TODO @imblowfish: Сюда добавлять новые команды
+        };
+        this.command = null;
+    }
+
+    supportedCommands() {
+        return Object.keys(this.commands);
+    }
+
+    setCommand(name, ctx) {
+        if (name in this.commands) {
+            this.command = () => this.commands[name](ctx);
+            return;
+        }
+        throw new Error("Unknown command");
     }
 
     async check() {
-        if (!this._configured) {
-            return Promise.reject(this.getName(), "not configured");
-        }
         try {
-            const url = `https://api.telegram.org/bot${this.__token}/getMe`;
+            const url = `https://api.telegram.org/bot${this.token}/getMe`;
             const resp = await fetch(url);
             if (resp.status === 200) {
                 return resp;
@@ -29,6 +39,9 @@ export class Telegram extends Service {
     }
 
     async exec() {
-        return this.__bot.telegram.sendMessage("354968032", "Helloooooo");
+        if (!this.command) {
+            return Promise.reject("Command is null");
+        }
+        return this.command();
     }
 }
