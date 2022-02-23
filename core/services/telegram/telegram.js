@@ -7,7 +7,7 @@ export class Telegram {
         this.bot = new Telegraf(this.token);
 
         this.commands = {
-            "Send Message": (ctx) => this.bot.telegram.sendMessage(ctx.chatID, ctx.msg)
+            "Send Message": (ctx) => this.bot.telegram.sendMessage(ctx.chatID, ctx.message)
             // TODO @imblowfish: Сюда добавлять новые команды
         };
         this.command = null;

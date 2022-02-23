@@ -4,4 +4,4 @@ build/
 public/*.js
 public/*.txt
 
-test/test-config.yml
+test/test-config.json
