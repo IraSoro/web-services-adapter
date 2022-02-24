@@ -1,7 +1,7 @@
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { App, Command } from "./base-app.js";
+import { App, Command } from "./app.js";
 
 
 class SendMessage extends Command {

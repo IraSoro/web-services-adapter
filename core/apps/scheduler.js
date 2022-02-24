@@ -1,4 +1,4 @@
-import { App, Command } from "./base-app.js";
+import { App, Command } from "./app.js";
 
 
 class DateTime extends Command {
