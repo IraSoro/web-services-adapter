@@ -6,6 +6,9 @@ import { google } from "googleapis";
 import { App, Command } from "./app.js";
 
 
+/**
+ * Google services base class
+ */
 class Google extends App {
     constructor(ctx, scopes) {
         super(ctx);
@@ -73,6 +76,9 @@ class Google extends App {
 }
 
 
+/**
+ * On Google calendar event command
+ */
 class OnEvent extends Command {
     constructor(ctx, args) {
         super(ctx, args);
@@ -91,6 +97,7 @@ class OnEvent extends Command {
             });
             console.log("Google Calendar Events:");
             for (const item of events.data.items) {
+                // TODO @imblowfish: удалить комментарий после реализации интерфейса
                 console.log(item.etag, item.summary);
                 if (this._args.etag == item.etag.replaceAll("\"", "")) {
                     const eventStartDateTime = new Date(item.start.dateTime);
