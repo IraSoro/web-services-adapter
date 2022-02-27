@@ -20,6 +20,10 @@ export class Telegram extends App {
         super(ctx);
     }
 
+    getAuthType() {
+        return "APIToken";
+    }
+
     createCommand(name, args) {
         switch (name) {
             case "SendMessage":

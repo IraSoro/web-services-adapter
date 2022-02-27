@@ -13,6 +13,12 @@ export class App {
         this._ctx = ctx;
     }
 
+    getAuthType() {
+    }
+
+    getAuthURL() {
+    }
+
     createTrigger(name, args) {
         name;
         args;
@@ -21,6 +27,10 @@ export class App {
     createCommand(name, args) {
         name;
         args;
+    }
+
+    async auth(callback) {
+        callback;
     }
 
     async check() {
