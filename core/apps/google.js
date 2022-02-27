@@ -3,14 +3,14 @@ import http from "http";
 import express from "express";
 import { google } from "googleapis";
 
-import { App } from "./app.js";
+import { App, Command } from "./app.js";
 
 
 class Google extends App {
     constructor(ctx, scopes) {
         super(ctx);
 
-        this.oauth2 = new google.auth.OAuth2(
+        this._ctx.oauth2 = new google.auth.OAuth2(
             this._ctx.clientID,
             this._ctx.clientSecret,
             this._ctx.redirectURI
@@ -29,7 +29,7 @@ class Google extends App {
         //     console.log(tokens.access_token);
         // });
 
-        this.authURL = this.oauth2.generateAuthUrl({
+        this._ctx.authURL = this._ctx.oauth2.generateAuthUrl({
             // 'online' (default) or 'offline' (gets refresh_token)
             access_type: "offline",
             scope: scopes
@@ -41,12 +41,12 @@ class Google extends App {
     }
 
     getAuthURL() {
-        return this.authURL;
+        return this._ctx.authURL;
     }
 
     async auth(callback) {
         return new Promise((resolve, reject) => {
-            callback(this.authURL);
+            callback(this._ctx.authURL);
 
             let server = null;
 
@@ -55,8 +55,8 @@ class Google extends App {
             redirectApp.get("/google/oauth2callback", async (req, res) => {
                 try {
                     server.close();
-                    const { tokens } = await this.oauth2.getToken(req.query.code);
-                    this.oauth2.credentials = tokens;
+                    const { tokens } = await this._ctx.oauth2.getToken(req.query.code);
+                    this._ctx.oauth2.credentials = tokens;
                     res.json({ status: "OAuth2 Success!" });
                     resolve();
                 } catch (err) {
@@ -72,16 +72,56 @@ class Google extends App {
     }
 }
 
+
+class OnEvent extends Command {
+    constructor(ctx, args) {
+        super(ctx, args);
+    }
+
+    async exec() {
+        const calendar = google.calendar({
+            version: "v3",
+            auth: this._ctx.oauth2
+        });
+        try {
+            const events = await calendar.events.list({
+                calendarId: this._args.calendarID,
+                timeMin: new Date().toISOString(),
+                timeZone: "UTC"
+            });
+            console.log("Google Calendar Events:");
+            for (const item of events.data.items) {
+                console.log(item.etag, item.summary);
+                if (this._args.etag == item.etag.replaceAll("\"", "")) {
+                    const eventStartDateTime = new Date(item.start.dateTime);
+                    const currentDateTime = new Date();
+                    const diff = eventStartDateTime - currentDateTime;
+                    if (diff < 0) {
+                        return Promise.resolve();
+                    }
+                    return new Promise((resolve) => {
+                        setTimeout(resolve, eventStartDateTime - currentDateTime);
+                    });
+                }
+            }
+            return Promise.reject("Cannot found etag event", this._args.etag);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+}
+
 export class GoogleCalendar extends Google {
     constructor(ctx) {
         super(ctx, "https://www.googleapis.com/auth/calendar");
     }
 
-    createCommand(name, args) {
-        args;
+    createTrigger(name, args) {
         switch (name) {
+            case "OnEvent":
+                return new OnEvent(this._ctx, args);
             default:
-                throw new Error("Unknown command");
+                throw new Error("Unknown trigger");
         }
     }
 
@@ -89,7 +129,7 @@ export class GoogleCalendar extends Google {
     async check() {
         const calendar = google.calendar({
             version: "v3",
-            auth: this.oauth2
+            auth: this._ctx.oauth2
         });
 
         try {

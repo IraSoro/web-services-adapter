@@ -45,6 +45,17 @@ describe("Scheduled Telegram message", () => {
 describe("Test Google Calendar", () => {
     const cfg = JSON.parse(fs.readFileSync("./test/test-config.json", "utf-8"));
     const googleCalendar = new GoogleCalendar(cfg["google-calendar"]["ctx"]);
+    const telegram = new Telegram(cfg["telegram"]["ctx"]);
+
+    it("Check Telegram connection", async () => {
+        try {
+            const resp = await telegram.check();
+            assert.equal(resp.status, 200, "Incorrect return code");
+        } catch (err) {
+            const strErr = JSON.stringify(await err.json());
+            assert.fail(strErr);
+        }
+    });
 
     it("Google Calendar authorization", async () => {
         try {
@@ -58,7 +69,19 @@ describe("Test Google Calendar", () => {
         try {
             await googleCalendar.check();
         } catch (err) {
-            console.error(err);
+            assert.fail(String(err));
+        }
+    });
+
+    it("Send message in Telegram on Google Calendar Event", async () => {
+        const testCommand = googleCalendar.createCommand("OnEvent", cfg["google-calendar"]["args"]);
+        const telegramCmd = telegram.createCommand("SendMessage", cfg["telegram"]["args"]);
+
+        try {
+            await testCommand.exec();
+            await telegramCmd.exec();
+        } catch (err) {
+            assert.fail(String(err));
         }
     });
 });
