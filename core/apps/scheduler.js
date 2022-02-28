@@ -1,7 +1,7 @@
 import { App, Command } from "./app.js";
 
 
-class DateTime extends Command {
+class OnDateTime extends Command {
     constructor(ctx, args) {
         super(ctx, args);
     }
@@ -29,8 +29,8 @@ export class Scheduler extends App {
 
     createTrigger(name, args) {
         switch (name) {
-            case "DateTime":
-                return new DateTime(this._ctx, args);
+            case "OnDateTime":
+                return new OnDateTime(this._ctx, args);
             default:
                 throw new Error("Unknown command");
         }

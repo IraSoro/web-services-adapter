@@ -2,6 +2,10 @@
  * Base command class
  */
 export class Command {
+    /**
+     * @param {Object} ctx Context with service parameters (API Tokens and etc.)
+     * @param {Object} args Command arguments
+     */
     constructor(ctx, args) {
         this._ctx = ctx;
         this._args = args;
@@ -19,6 +23,9 @@ export class Command {
  * Base app class
  */
 export class App {
+    /**
+     * @param {Object} ctx Context with service parameters (API Tokens and etc.)
+     */
     constructor(ctx) {
         this._ctx = ctx;
     }
@@ -58,7 +65,7 @@ export class App {
         name;
         args;
     }
-    
+
     /**
      * Service authorization step
      * @param {string} callback Authorization callback with authorization URL parameter

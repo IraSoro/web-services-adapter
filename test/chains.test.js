@@ -28,7 +28,7 @@ describe("Scheduled Telegram message", () => {
     });
 
     it("Send Telegram message after 2 seconds", async () => {
-        const trigger = scheduler.createTrigger("DateTime", {
+        const trigger = scheduler.createTrigger("OnDateTime", {
             dateTime: new Date().getTime() + 2000
         });
         const telegramCmd = telegram.createCommand("SendMessage", cfg["telegram"]["args"]);
@@ -74,7 +74,7 @@ describe("Test Google Calendar", () => {
     });
 
     it("Send message in Telegram on Google Calendar Event", async () => {
-        const testCommand = googleCalendar.createCommand("OnEvent", cfg["google-calendar"]["args"]);
+        const testCommand = googleCalendar.createTrigger("OnEvent", cfg["google-calendar"]["args"]);
         const telegramCmd = telegram.createCommand("SendMessage", cfg["telegram"]["args"]);
 
         try {
