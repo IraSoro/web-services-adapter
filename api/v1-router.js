@@ -17,7 +17,7 @@ export default function () {
     });
 
     router.get("/apps/:appName", async (req, res) => {
-        const pattern = new RegExp(`${req.params.appName}*`);
+        const pattern = new RegExp(`${req.params.appName}*`, "i");
         const apps = [];
         for (const app of appManager.getSupportedApps()) {
             if (pattern.test(app)) {
