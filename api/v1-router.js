@@ -16,8 +16,15 @@ export default function () {
         res.json(appManager.getSupportedApps());
     });
 
-    router.get("/apps/:appName", (req, res) => {
-        res.send("Search app" + req.params.appName);
+    router.get("/apps/:appName", async (req, res) => {
+        const pattern = new RegExp(`${req.params.appName}*`);
+        const apps = [];
+        for (const app of appManager.getSupportedApps()) {
+            if (pattern.test(app)) {
+                apps.push(app);
+            }
+        }
+        res.json(apps);
     });
 
     router.get("/apps/:appName/icon", async (req, res) => {
