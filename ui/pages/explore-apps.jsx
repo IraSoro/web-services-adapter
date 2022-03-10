@@ -36,14 +36,16 @@ const AppIcon = (props) => {
     const style = {
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     };
     return (
         <Card variant="outlined"
+            onClick={props.onClick}
             sx={{
                 ...style,
                 width: "150px",
-                height: "150px"
+                height: "150px",
+                cursor: "pointer"
             }}
         >
             <CardContent>
