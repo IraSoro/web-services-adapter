@@ -1,5 +1,3 @@
-import fs from "fs";
-
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
