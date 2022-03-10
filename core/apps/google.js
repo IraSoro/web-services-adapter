@@ -1,7 +1,11 @@
 import express from "express";
 import { google } from "googleapis";
 
-import { App, Command } from "./app.js";
+import {
+    App,
+    Command,
+    UnknownTriggerError
+} from "./app.js";
 
 
 /**
@@ -128,12 +132,12 @@ export class GoogleCalendar extends Google {
         super("Google Calendar", "https://www.googleapis.com/auth/calendar");
     }
 
-    createTrigger(name, args) {
-        switch (name) {
+    createTrigger(triggerName, args) {
+        switch (triggerName) {
             case "OnEvent":
                 return new OnEvent(this._ctx, args);
             default:
-                throw new Error("Unknown trigger");
+                throw new UnknownTriggerError(this._name, triggerName);
         }
     }
 

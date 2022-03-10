@@ -2,7 +2,11 @@ import express from "express";
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { App, Command } from "./app.js";
+import {
+    App,
+    Command,
+    UnknownCommandError
+} from "./app.js";
 
 
 class SendMessage extends Command {
@@ -66,12 +70,12 @@ export class Telegram extends App {
         return router;
     }
 
-    createCommand(name, args) {
-        switch (name) {
+    createCommand(commandName, args) {
+        switch (commandName) {
             case "SendMessage":
                 return new SendMessage(this._ctx, args);
             default:
-                throw new Error("Unknown command");
+                throw new UnknownCommandError(this._name, commandName);
         }
     }
 

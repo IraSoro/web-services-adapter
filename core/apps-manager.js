@@ -5,6 +5,14 @@ import { Scheduler } from "./apps/scheduler.js";
 import { Telegram } from "./apps/telegram.js";
 
 
+class UnknownApplicationError extends Error {
+    constructor(unknownAppName) {
+        const msg = `Unknown application name, ${unknownAppName}`;
+        super(msg);
+        this.name = "UnknownApplicationError";
+    }
+}
+
 class AppsManager {
     constructor() {
         this.__apps = {
@@ -30,7 +38,7 @@ class AppsManager {
             try {
                 fs.accessSync(this.getAppIcon(appName));
             } catch (err) {
-                throw Error("Cannot found app icon");
+                throw new UnknownApplicationError(appName);
             }
         }
     }
@@ -50,7 +58,7 @@ class AppsManager {
         if (Object.keys(this.__apps).includes(appName)) {
             return this.__apps[appName].instance;
         }
-        throw Error("Unknown app name");
+        throw new UnknownApplicationError(appName);
     }
 
     getAppIcon(appName) {
@@ -58,7 +66,7 @@ class AppsManager {
         if (Object.keys(this.__apps).includes(appName)) {
             return iconsPath + this.__apps[appName].icon;
         }
-        throw Error("Unknown app name");
+        throw new UnknownApplicationError(appName);
     }
 }
 

@@ -1,6 +1,13 @@
 import fs from "fs";
 
 
+class SaveConfigurationError extends Error {
+    constructor() {
+        super("Cannot save new configuration");
+        this.name = SaveConfigurationError;
+    }
+}
+
 class ConfigManager {
     constructor() {
         this.__configFilePath = "./cfg/config.json";
@@ -15,7 +22,7 @@ class ConfigManager {
                 JSON.stringify(this.__cfg, null, 4),
                 "utf-8");
         } catch (err) {
-            throw Error("Cannot save new configuration");
+            throw new SaveConfigurationError();
         }
     }
 

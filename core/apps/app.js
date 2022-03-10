@@ -3,6 +3,22 @@ import express from "express";
 import { cfgManager } from "../cfg-manager.js";
 
 
+export class UnknownCommandError extends Error {
+    constructor(appName, unknownCommandName) {
+        const msg = `Cannot found command ${unknownCommandName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownCommandError";
+    }
+}
+
+export class UnknownTriggerError extends Error {
+    constructor(appName, unknownTriggerName) {
+        const msg = `Cannot found trigger ${unknownTriggerName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownTriggerError";
+    }
+}
+
 /**
  * Base command class
  */
@@ -68,23 +84,23 @@ export class App {
 
     /**
      * Creates service trigger
-     * @param {string} name 
+     * @param {string} triggerName 
      * @param {string} args
      * @returns {Command}
      */
-    createTrigger(name, args) {
-        name;
+    createTrigger(triggerName, args) {
+        triggerName;
         args;
     }
 
     /**
      * Creates service command
-     * @param {string} name 
+     * @param {string} commandName 
      * @param {string} args
      * @returns {Command}
      */
-    createCommand(name, args) {
-        name;
+    createCommand(commandName, args) {
+        commandName;
         args;
     }
 
