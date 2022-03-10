@@ -5,3 +5,5 @@ public/*.js
 public/*.txt
 
 test/test-config.json
+cfg/config.json
+cfg/origin-config.json

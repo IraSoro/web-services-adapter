@@ -23,8 +23,8 @@ class OnDateTime extends Command {
 }
 
 export class Scheduler extends App {
-    constructor(ctx) {
-        super(ctx);
+    constructor() {
+        super("Scheduler");
     }
 
     createTrigger(name, args) {

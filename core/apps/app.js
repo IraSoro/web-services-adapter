@@ -1,3 +1,8 @@
+import express from "express";
+
+import { cfgManager } from "../cfg-manager.js";
+
+
 /**
  * Base command class
  */
@@ -24,10 +29,19 @@ export class Command {
  */
 export class App {
     /**
-     * @param {Object} ctx Context with service parameters (API Tokens and etc.)
+     * @param {string} name Application name
      */
-    constructor(ctx) {
-        this._ctx = ctx;
+    constructor(name) {
+        this._name = name;
+        this._ctx = cfgManager.getAppContext(name);
+    }
+
+    /**
+     * Check if client already connected to the application
+     * @returns {Boolean}
+     */
+    isAlreadyConnected() {
+        return false;
     }
 
     /**
@@ -42,6 +56,14 @@ export class App {
      * @returns {string}
      */
     getAuthURL() {
+    }
+
+    /**
+     * Returns application router
+     * @returns {Express.Router}
+     */
+    getRouter() {
+        return new express.Router();
     }
 
     /**
@@ -64,15 +86,6 @@ export class App {
     createCommand(name, args) {
         name;
         args;
-    }
-
-    /**
-     * Service authorization step
-     * @param {string} callback Authorization callback with authorization URL parameter
-     * @returns {Promise}
-     */
-    async auth(callback) {
-        callback;
     }
 
     /**
