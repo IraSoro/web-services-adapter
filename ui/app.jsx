@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { ExploreAppsPage } from "./pages/explore-apps";
+import { ExploreAppsPage } from "./pages";
 
 const App = () => {
     return <ExploreAppsPage />;
