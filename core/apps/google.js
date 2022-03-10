@@ -62,8 +62,8 @@ class Google extends App {
 
         router.get("/google/oauth2callback", async (req, res) => {
             try {
-                const { tokens } = await this._cts.oauth2.getToken(req.query.code);
-                this._ctx.oauth.credentials = tokens;
+                const { tokens } = await this._ctx.oauth2.getToken(req.query.code);
+                this._ctx.oauth2.credentials = tokens;
                 res.json({
                     res: "Success"
                 });
