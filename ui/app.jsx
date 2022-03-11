@@ -1,11 +1,8 @@
-import React, {
-    Fragment
-} from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import {
+    useRoutes,
     BrowserRouter,
-    Routes,
-    Route
 } from "react-router-dom";
 
 import {
@@ -16,15 +13,27 @@ import {
 
 
 const App = () => {
-    return (
-        <Fragment>
-            <Routes>
-                <Route path="/" element={<MyApplets />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/apps/:appName" element={<ApplicationSettings />} />
-            </Routes>
-        </Fragment>
-    );
+    const routes = useRoutes([
+        {
+            path: "/",
+            element: <MyApplets />,
+        },
+        {
+            path: "explore",
+            element: <Explore />
+        },
+        {
+            path: "apps",
+            children: [
+                {
+                    path: ":appName",
+                    element: <ApplicationSettings />
+                }
+            ]
+        }
+    ]);
+
+    return routes;
 };
 
 ReactDOM.render(
