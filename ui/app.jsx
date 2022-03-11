@@ -7,6 +7,7 @@ import {
 
 import {
     AppInfo,
+    CreateApplet,
     MyApplets,
     Explore,
     NotFound
@@ -35,6 +36,10 @@ const App = () => {
                     element: <AppInfo />
                 }
             ]
+        },
+        {
+            path: "createApplet",
+            element: <CreateApplet />
         },
         {
             path: "*",
