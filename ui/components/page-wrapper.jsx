@@ -1,12 +1,14 @@
-import React from "react";
+import React, {
+    Fragment
+} from "react";
+import {
+    Link
+} from "react-router-dom";
 import {
     Button,
     ButtonGroup,
     Stack
 } from "@mui/material";
-import {
-    Link
-} from "react-router-dom";
 
 
 const LinkButton = (props) => {
@@ -19,7 +21,7 @@ const LinkButton = (props) => {
     );
 };
 
-export const Header = () => {
+const Header = () => {
     return (
         <Stack direction="row" justifyContent="end">
             <ButtonGroup variant="text">
@@ -29,3 +31,13 @@ export const Header = () => {
         </Stack>
     );
 };
+
+export const PageWrapper = (props) => {
+    return (
+        <Fragment>
+            <Header />
+            {props.children}
+        </Fragment>
+    );
+};
+

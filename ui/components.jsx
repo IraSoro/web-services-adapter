@@ -1,4 +1,2 @@
-export { ApplicationCard } from "./components/application-card";
-export { ApplicationsList } from "./components/applications-list";
-export { Header } from "./components/header";
+export { PageWrapper } from "./components/page-wrapper";
 export { Search } from "./components/search";

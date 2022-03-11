@@ -9,8 +9,9 @@ import {
 } from "react-router-dom";
 
 import {
-    Explore,
-    MyApplets
+    ApplicationSettings,
+    MyApplets,
+    Explore
 } from "./pages";
 
 
@@ -20,6 +21,7 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<MyApplets />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/apps/:appName" element={<ApplicationSettings />} />
             </Routes>
         </Fragment>
     );
