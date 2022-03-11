@@ -41,7 +41,7 @@ const ActionButton = (props) => {
     } else {
         return (
             <Button variant="outlined"
-                onClick={() => window.open(connectURL, "_blank")}
+                onClick={() => globalThis.open(connectURL, "_blank")}
             >
                 Connect
             </Button>
