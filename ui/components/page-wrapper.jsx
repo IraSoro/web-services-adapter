@@ -2,7 +2,7 @@ import React, {
     Fragment
 } from "react";
 import {
-    Link
+    useNavigate
 } from "react-router-dom";
 import {
     Button,
@@ -11,22 +11,13 @@ import {
 } from "@mui/material";
 
 
-const LinkButton = (props) => {
-    return (
-        <Button component={Link}
-            to={props.to}
-        >
-            {props.children}
-        </Button>
-    );
-};
-
 const Header = () => {
+    const navigate = useNavigate();
     return (
         <Stack direction="row" justifyContent="end">
             <ButtonGroup variant="text">
-                <LinkButton to="/">My Applets</LinkButton>
-                <LinkButton to="/explore">Explore</LinkButton>
+                <Button onClick={() => navigate("/")}>My Applets</Button>
+                <Button onClick={() => navigate("/explore")}>Explore</Button>
             </ButtonGroup>
         </Stack>
     );

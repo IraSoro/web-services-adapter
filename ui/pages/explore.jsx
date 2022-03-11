@@ -3,7 +3,7 @@ import React, {
     useEffect
 } from "react";
 import {
-    Link
+    useNavigate
 } from "react-router-dom";
 import {
     Avatar,
@@ -22,6 +22,7 @@ import {
 
 
 const ApplicationCard = (props) => {
+    const navigate = useNavigate();
     const style = {
         display: "flex",
         justifyContent: "center",
@@ -29,7 +30,7 @@ const ApplicationCard = (props) => {
     };
     return (
         <Card variant="outlined"
-            component={Link}
+            onClick={() => navigate("/apps/" + props.name)}
             to={"/apps/" + props.name}
             sx={{
                 ...style,
