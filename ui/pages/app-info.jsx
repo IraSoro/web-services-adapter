@@ -16,6 +16,7 @@ import { PageWrapper } from "../components";
 
 
 const ActionButton = (props) => {
+    // FIXME @imblowfish: После того, как нажали Connect и вошли в приложение кнопка не обновляется
     const navigate = useNavigate();
 
     const [connectURL, setConnectURL] = useState("");
@@ -48,7 +49,6 @@ const ActionButton = (props) => {
     }
 };
 
-
 export const AppInfo = () => {
     const { appName } = useParams();
 
@@ -64,7 +64,7 @@ export const AppInfo = () => {
                 setConnected(apps[0].connected);
             })
             .catch((err) => console.error(err));
-    }, [connected]);
+    }, []);
 
     const style = {
         display: "flex",
