@@ -31,6 +31,10 @@ export class Scheduler extends App {
         super("Scheduler");
     }
 
+    isAlreadyConnected() {
+        return true;
+    }
+
     createTrigger(triggerName, args) {
         switch (triggerName) {
             case "OnDateTime":
