@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import {
-    ApplicationSettings,
+    AppInfo,
     MyApplets,
     Explore,
     NotFound
@@ -32,7 +32,7 @@ const App = () => {
             children: [
                 {
                     path: ":appName",
-                    element: <ApplicationSettings />
+                    element: <AppInfo />
                 }
             ]
         },

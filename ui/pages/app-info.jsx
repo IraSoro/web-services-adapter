@@ -9,7 +9,7 @@ import {
 import { PageWrapper } from "../components";
 
 
-export const ApplicationSettings = () => {
+export const AppInfo = () => {
     const { appName } = useParams();
 
     const style = {
