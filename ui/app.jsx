@@ -8,7 +8,8 @@ import {
 import {
     ApplicationSettings,
     MyApplets,
-    Explore
+    Explore,
+    NotFound
 } from "./pages";
 
 
@@ -30,6 +31,10 @@ const App = () => {
                     element: <ApplicationSettings />
                 }
             ]
+        },
+        {
+            path: "*",
+            element: <NotFound />
         }
     ]);
 
