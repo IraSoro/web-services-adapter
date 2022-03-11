@@ -13,14 +13,14 @@ export default function () {
     });
 
     router.get("/apps", (_, res) => {
-        res.json(appsManager.getSupportedApps());
+        res.json(appsManager.apps);
     });
 
     router.get("/apps/:appName", (req, res) => {
         const pattern = new RegExp(`${req.params.appName}*`, "i");
         const apps = [];
-        for (const app of appsManager.getSupportedApps()) {
-            if (pattern.test(app)) {
+        for (const app of appsManager.apps) {
+            if (pattern.test(app.name)) {
                 apps.push(app);
             }
         }

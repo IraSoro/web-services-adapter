@@ -61,7 +61,7 @@ const ApplicationsList = (props) => {
             .then((resp) => resp.json())
             .then((apps) => {
                 setApps(apps.map((app) => {
-                    return <ApplicationCard key={app} name={app} />;
+                    return <ApplicationCard key={app.name} name={app.name} />;
                 }));
             })
             .catch((err) => console.error(err));
