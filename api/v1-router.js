@@ -45,18 +45,18 @@ export default function () {
         try {
             const app = appsManager.getAppInstance(req.params.appName);
             if (app.isAlreadyConnected()) {
-                res.send({
+                res.json({
                     res: "Success",
                     msg: "Already connected"
                 });
             } else {
-                res.send({
+                res.json({
                     res: "Success",
                     authURL: app.getAuthURL()
                 });
             }
         } catch (err) {
-            res.send({
+            res.json({
                 res: "Failed",
                 description: "Cannot connect to app" + req.params.appName,
                 reason: JSON.stringify(err)
