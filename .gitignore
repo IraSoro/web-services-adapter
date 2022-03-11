@@ -1,7 +1,7 @@
 node_modules/
 build/
 
-public/*.js
+public/*.mjs
 public/*.txt
 
 test/test-config.json

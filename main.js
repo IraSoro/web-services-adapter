@@ -2,6 +2,7 @@ import http from "http";
 import express from "express";
 
 import apiFactory from "./api/api-factory.js";
+import redirectRouter from "./api/redirect-router.js";
 import { appsManager } from "./core/apps-manager.js";
 import { utilsManager } from "./utils/utils-manager.js";
 
@@ -17,6 +18,7 @@ app.use(express.static("./public"));
 // инициализация API
 appsManager.initRoutes(app);
 app.use("/api/v1/", apiFactory("v1"));
+app.use(redirectRouter());
 // запуск утилит
 utilsManager.launchAll();
 
