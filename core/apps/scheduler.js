@@ -1,4 +1,8 @@
-import { App, Command } from "./app.js";
+import {
+    App,
+    Command,
+    UnknownTriggerError
+} from "./app.js";
 
 
 class OnDateTime extends Command {
@@ -23,16 +27,20 @@ class OnDateTime extends Command {
 }
 
 export class Scheduler extends App {
-    constructor(ctx) {
-        super(ctx);
+    constructor() {
+        super("Scheduler");
     }
 
-    createTrigger(name, args) {
-        switch (name) {
+    isAlreadyConnected() {
+        return true;
+    }
+
+    createTrigger(triggerName, args) {
+        switch (triggerName) {
             case "OnDateTime":
                 return new OnDateTime(this._ctx, args);
             default:
-                throw new Error("Unknown command");
+                throw new UnknownTriggerError(this._name, triggerName);
         }
     }
 

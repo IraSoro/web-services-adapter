@@ -1,3 +1,24 @@
+import express from "express";
+
+import { cfgManager } from "../cfg-manager.js";
+
+
+export class UnknownCommandError extends Error {
+    constructor(appName, unknownCommandName) {
+        const msg = `Cannot found command ${unknownCommandName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownCommandError";
+    }
+}
+
+export class UnknownTriggerError extends Error {
+    constructor(appName, unknownTriggerName) {
+        const msg = `Cannot found trigger ${unknownTriggerName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownTriggerError";
+    }
+}
+
 /**
  * Base command class
  */
@@ -24,10 +45,19 @@ export class Command {
  */
 export class App {
     /**
-     * @param {Object} ctx Context with service parameters (API Tokens and etc.)
+     * @param {string} name Application name
      */
-    constructor(ctx) {
-        this._ctx = ctx;
+    constructor(name) {
+        this._name = name;
+        this._ctx = cfgManager.getAppContext(name);
+    }
+
+    /**
+     * Check if client already connected to the application
+     * @returns {Boolean}
+     */
+    isAlreadyConnected() {
+        return false;
     }
 
     /**
@@ -45,34 +75,33 @@ export class App {
     }
 
     /**
+     * Returns application router
+     * @returns {Express.Router}
+     */
+    getRouter() {
+        return new express.Router();
+    }
+
+    /**
      * Creates service trigger
-     * @param {string} name 
+     * @param {string} triggerName 
      * @param {string} args
      * @returns {Command}
      */
-    createTrigger(name, args) {
-        name;
+    createTrigger(triggerName, args) {
+        triggerName;
         args;
     }
 
     /**
      * Creates service command
-     * @param {string} name 
+     * @param {string} commandName 
      * @param {string} args
      * @returns {Command}
      */
-    createCommand(name, args) {
-        name;
+    createCommand(commandName, args) {
+        commandName;
         args;
-    }
-
-    /**
-     * Service authorization step
-     * @param {string} callback Authorization callback with authorization URL parameter
-     * @returns {Promise}
-     */
-    async auth(callback) {
-        callback;
     }
 
     /**

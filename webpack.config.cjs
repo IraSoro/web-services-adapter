@@ -4,7 +4,7 @@ module.exports = {
     devtool: "eval-source-map",
     entry: "./ui/app.jsx",
     output: {
-        filename: "app.bundle.js",
+        filename: "app.bundle.mjs",
         path: path.resolve(__dirname, "./public"),
         hashFunction: "xxhash64"
     },

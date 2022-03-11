@@ -1,5 +1,14 @@
 import v1Router from "./v1-router.js";
 
+
+class APIFactoryError extends Error {
+    constructor(invalidAPIVersion) {
+        const msg = `Unknown API version ${invalidAPIVersion}, can't create router`;
+        super(msg);
+        this.name = "APIFactoryError";
+    }
+}
+
 /**
  * Creates express.Router based on the API version
  * @param {string} apiVersion
@@ -10,6 +19,6 @@ export default function (apiVersion) {
         case "v1":
             return v1Router();
         default:
-            throw `Error: Unknown API version ${apiVersion} cannot create router`;
+            throw new APIFactoryError(apiVersion);
     }
 }
