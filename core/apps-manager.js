@@ -37,7 +37,6 @@ class AppsManager {
     __check() {
         for (const appName of Object.keys(this.__apps)) {
             try {
-                console.log(this.getAppIcon(appName));
                 fs.accessSync(this.getAppIcon(appName));
             } catch (err) {
                 throw new UnknownApplicationError(appName);
