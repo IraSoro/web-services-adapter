@@ -15,6 +15,7 @@ const app = express();
 app.set("port", port);
 app.use(express.json());
 app.use(express.static("./public"));
+app.use("/icons", express.static("./assets/icons"));
 // инициализация API
 appsManager.initRoutes(app);
 app.use("/api/v1/", apiFactory("v1"));

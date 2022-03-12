@@ -8,60 +8,23 @@ export default function () {
 
     const router = express.Router();
 
-    router.get("/", (_, res) => {
-        res.json({ res: "Success" });
-    });
-
     router.get("/apps", (_, res) => {
         res.json(appsManager.apps);
     });
 
     router.get("/apps/:appName", (req, res) => {
-        const pattern = new RegExp(`${req.params.appName}*`, "i");
-        const apps = [];
-        for (const app of appsManager.apps) {
-            if (pattern.test(app.name)) {
-                apps.push(app);
-            }
+        const app = appsManager.getAppByName(req.params.appName);
+        if (app) {
+            res.json(app);
+        } else {
+            res.status(404).send();
         }
+    });
+
+    router.get("/apps/search/:filter", (req, res) => {
+        const pattern = new RegExp(`${req.params.filter}*`, "i");
+        const apps = appsManager.apps.filter((app) => pattern.test(app.name));
         res.json(apps);
-    });
-
-    router.get("/apps/:appName/icon", (req, res) => {
-        const appName = req.params.appName;
-        const iconPath = appsManager.getAppIcon(appName);
-        try {
-            res.sendFile(iconPath, { root: "./" });
-        } catch (err) {
-            res.json({
-                res: "Failed",
-                description: "Cannot send app icon " + appName,
-                reason: JSON.stringify(err)
-            });
-        }
-    });
-
-    router.get("/connect/:appName", (req, res) => {
-        try {
-            const app = appsManager.getAppInstance(req.params.appName);
-            if (app.isAlreadyConnected()) {
-                res.json({
-                    res: "Success",
-                    msg: "Already connected"
-                });
-            } else {
-                res.json({
-                    res: "Success",
-                    authURL: app.getAuthURL()
-                });
-            }
-        } catch (err) {
-            res.json({
-                res: "Failed",
-                description: "Cannot connect to app" + req.params.appName,
-                reason: JSON.stringify(err)
-            });
-        }
     });
 
     return router;
