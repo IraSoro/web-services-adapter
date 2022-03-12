@@ -43,7 +43,7 @@ class AppsManager {
                 name: appName,
                 icon: properties.icon,
                 connected: properties.instance.isAlreadyConnected(),
-                connectURL: properties.instance.getAuthURL(),
+                authURL: properties.instance.getAuthURL(),
                 commands: properties.instance.getCommands(),
                 triggers: properties.instance.getTriggers()
             });
