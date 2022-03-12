@@ -21,7 +21,11 @@ export default function () {
         }
     });
 
-    router.get("/apps/search/:filter", (req, res) => {
+    router.get("/search/apps", (req, res) => {
+        res.json(appsManager.apps);
+    });
+
+    router.get("/search/apps/:filter", (req, res) => {
         const pattern = new RegExp(`${req.params.filter}*`, "i");
         const apps = appsManager.apps.filter((app) => pattern.test(app.name));
         res.json(apps);
