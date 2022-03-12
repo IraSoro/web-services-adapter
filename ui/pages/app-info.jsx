@@ -33,7 +33,7 @@ const ActionButton = (props) => {
     if (props.connected) {
         return (
             <Button variant="contained"
-                onClick={() => navigate("/createApplet")}
+                onClick={() => navigate("/create")}
             >
                 Create
             </Button>
