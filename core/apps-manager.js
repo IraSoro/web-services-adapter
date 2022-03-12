@@ -56,6 +56,8 @@ class AppsManager {
         for (const [appName, properties] of Object.entries(this.__apps)) {
             apps.push({
                 name: appName,
+                commands: properties.instance.getCommands(),
+                triggers: properties.instance.getTriggers(),
                 connected: properties.instance.isAlreadyConnected()
             });
         }

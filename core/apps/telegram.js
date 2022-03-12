@@ -4,8 +4,7 @@ import fetch from "node-fetch";
 
 import {
     App,
-    Command,
-    UnknownCommandError
+    Command
 } from "./app.js";
 
 
@@ -23,6 +22,10 @@ class SendMessage extends Command {
 export class Telegram extends App {
     constructor() {
         super("Telegram");
+
+        this._commands = {
+            "SendMessage": SendMessage
+        };
     }
 
     isAlreadyConnected() {
@@ -68,15 +71,6 @@ export class Telegram extends App {
             }
         });
         return router;
-    }
-
-    createCommand(commandName, args) {
-        switch (commandName) {
-            case "SendMessage":
-                return new SendMessage(this._ctx, args);
-            default:
-                throw new UnknownCommandError(this._name, commandName);
-        }
     }
 
     async check() {
