@@ -8,6 +8,21 @@ import {
 } from "./app.js";
 
 
+class ReceiveMessage extends Command {
+    constructor(ctx, args) {
+        super(ctx, args);
+    }
+
+    async exec() {
+        return Promise((resolve) => {
+            const bot = new Telegraf(this._ctx.token);
+            bot.on("message", (ctx) => {
+                resolve(ctx.message.text);
+            });
+        });
+    }
+}
+
 class SendMessage extends Command {
     constructor(ctx, args) {
         super(ctx, args);
@@ -22,6 +37,10 @@ class SendMessage extends Command {
 export class Telegram extends App {
     constructor() {
         super("Telegram");
+
+        this._triggers = {
+            "ReceiveMessage": ReceiveMessage
+        };
 
         this._commands = {
             "SendMessage": SendMessage
