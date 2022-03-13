@@ -21,6 +21,15 @@ export default function () {
         }
     });
 
+    router.get("/apps/:appName/icon", (req, res) => {
+        const app = appsManager.getAppByName(req.params.appName);
+        if (!app) {
+            res.status(404).send();
+            return;
+        }
+        res.redirect(`/icons/${app.icon}`);
+    });
+
     router.get("/search/apps", (req, res) => {
         res.json(appsManager.apps);
     });
