@@ -30,7 +30,7 @@ const AppCard = (props) => {
         >
             <Avatar
                 variant="square"
-                src={`/api/v1/apps/${props.name}/icon`}
+                src={`/icons/${props.icon}`}
             />
             <Typography
                 variant="body2"
@@ -46,17 +46,18 @@ const AppsList = (props) => {
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/apps${props.filter ?? ""}`)
+        fetch(`/api/v1/search/apps/${props.filter ?? ""}`)
             .then((resp) => resp.json())
-            .then((apps) => setApps(apps.map((app) => app.name)))
+            .then((apps) => setApps(apps))
             .catch((err) => console.error(err));
     }, [props.filter]);
 
     const appCards = apps.map((app) => {
         return (
             <AppCard
-                key={app}
-                name={app}
+                key={app.name}
+                name={app.name}
+                icon={app.icon}
                 onClick={props.onAppClick}
             />
         );

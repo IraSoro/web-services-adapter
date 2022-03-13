@@ -22,9 +22,9 @@ const ActionButton = (props) => {
     const [connectURL, setConnectURL] = useState("");
 
     useEffect(() => {
-        fetch(`/api/v1/connect/${props.appName}`)
+        fetch(`/api/v1/apps/${props.appName}`)
             .then((resp) => resp.json())
-            .then((res) => setConnectURL(res.authURL))
+            .then((app) => setConnectURL(app.authURL))
             .catch((err) => console.error(err));
     }, []);
 
@@ -57,12 +57,7 @@ export const AppInfo = () => {
     useEffect(() => {
         fetch(`/api/v1/apps/${appName}`)
             .then((resp) => resp.json())
-            .then((apps) => {
-                if (!apps.length) {
-                    return;
-                }
-                setConnected(apps[0].connected);
-            })
+            .then((app) => setConnected(app.connected))
             .catch((err) => console.error(err));
     }, []);
 
