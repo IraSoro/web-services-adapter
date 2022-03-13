@@ -1,210 +1,256 @@
 import React, {
+    Fragment,
     useState,
-    useEffect,
-    useReducer
+    useEffect
 } from "react";
 import {
-    Avatar,
-    Box,
     Button,
-    Card,
-    CardContent,
-    Divider,
-    Stack,
     Container,
-    Typography,
+    Stack,
     Stepper,
     Step,
-    StepLabel
+    StepLabel,
 } from "@mui/material";
 
 import {
-    PageWrapper,
-    Search
+    AppSelector,
+    PageWrapper
 } from "../components";
+import {
+    AppFactory
+} from "../app-factory";
 
 
-const request = {
+const newApplet = {
     triggerApp: "",
     trigger: "",
+    triggerArgs: {},
+
     actionApp: "",
-    action: ""
+    action: "",
+    actionArgs: {}
 };
 
-const ApplicationCard = (props) => {
-    const style = {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-    };
+const AppTrigger = (props) => {
     return (
-        <Card variant="outlined"
-            onClick={() => props.onClick()}
-            sx={{
-                ...style,
-                width: "150px",
-                height: "150px",
-                cursor: "pointer"
-            }}
+        <Button
+            variant="text"
+            onClick={() => props.onClick(props.name)}
         >
-            <CardContent>
-                <Box sx={style}>
-                    <Avatar variant="square" src={"/api/v1/apps/" + props.name + "/icon"} />
-                </Box>
-                <Box sx={style}>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary">
-                        {props.name}
-                    </Typography>
-                </Box>
-            </CardContent>
-        </Card>
+            {props.name}
+        </Button>
     );
 };
 
-const ChooseTriggerApplication = () => {
-    const [apps, setApps] = useState([]);
-    const [filter, setFilter] = useState("");
-
-    useEffect(() => {
-        fetch(`/api/v1/apps/${filter ?? ""}`)
-            .then((resp) => resp.json())
-            .then((apps) => {
-                setApps(apps.map((app) => {
-                    return <ApplicationCard key={app.name} name={app.name} onClick={() => request.triggerApp = app.name} />;
-                }));
-            })
-            .catch((err) => console.error(err));
-    }, [filter]);
-
-    return (
-        <Stack direction="row" padding={2} spacing={2}>
-            <Search onChange={(searchRequest) => setFilter(searchRequest)} />
-            {apps}
-        </Stack>
-    );
-};
-
-const ChooseTrigger = () => {
+const TriggerSelector = (props) => {
     const [triggers, setTriggers] = useState([]);
 
     useEffect(() => {
-        fetch("/api/v1/apps/" + request.triggerApp)
+        fetch(`/api/v1/apps/${newApplet.triggerApp}`)
             .then((resp) => resp.json())
-            .then((apps) => setTriggers(apps[0].triggers))
+            .then((app) => setTriggers(app.triggers))
             .catch((err) => console.error(err));
     }, []);
 
+    const triggersComponents = triggers.map((trigger) => {
+        return (
+            <AppTrigger
+                key={trigger}
+                name={trigger}
+                onClick={props.onTriggerClick}
+            />
+        );
+    });
+
     return (
-        <Stack direction="row" padding={2} spacing={2}>
-            {triggers.map((trigger) => {
-                return <h1 key={trigger} onClick={() => request.trigger = trigger}>{trigger}</h1>;
-            })}
+        <Stack
+            direction="row"
+            justifyContent="center"
+            padding={2}
+            spacing={2}
+        >
+            {triggersComponents}
         </Stack>
     );
 };
 
-const TriggerConfiguration = () => {
-    const steps = [
-        {
-            name: "Choose application",
-            element: <ChooseTriggerApplication />
-        },
-        {
-            name: "Choose trigger",
-            element: <ChooseTrigger />
-        },
-        {
-            name: "Configure",
-            element: <ChooseTriggerApplication />
-        }
-    ];
+const ActionSelector = (props) => {
+    const [actions, setActions] = useState([]);
 
-    const [configureMode, setConfigureMode] = useState(false);
+    useEffect(() => {
+        fetch(`/api/v1/apps/${newApplet.actionApp}`)
+            .then((resp) => resp.json())
+            .then((app) => setActions(app.commands))
+            .catch((err) => console.error(err));
+    }, []);
+
+    const actionsComponents = actions.map((action) => {
+        return (
+            <AppTrigger
+                key={action}
+                name={action}
+                onClick={props.onActionClick}
+            />
+        );
+    });
+
+    return (
+        <Stack
+            direction="row"
+            justifyContent="center"
+            padding={2}
+            spacing={2}
+        >
+            {actionsComponents}
+        </Stack>
+    );
+};
+
+const FieldsCompleter = (props) => {
+    return (
+        <AppFactory
+            app={newApplet.triggerApp}
+            trigger={newApplet.trigger}
+            onDone={props.onDone}
+        />
+    );
+};
+
+const FieldsActionCompleter = (props) => {
+    return (
+        <AppFactory
+            app={newApplet.actionApp}
+            action={newApplet.action}
+            onDone={props.onDone}
+        />
+    );
+}
+
+const CreateFlow = () => {
     const [activeStep, setActiveStep] = useState(0);
 
-    const style = {
-        mx: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "300px"
-    };
+    const steps = [
+        // trigger
+        {
+            name: "Choose trigger app",
+            component: (
+                <AppSelector
+                    triggersOnly
+                    onAppClick={(appName) => {
+                        newApplet.triggerApp = appName;
+                        setActiveStep((step) => step + 1);
+                    }}
+                />
+            )
+        },
+        {
+            name: "Select trigger",
+            component: (
+                <TriggerSelector
+                    onTriggerClick={(triggerName) => {
+                        newApplet.trigger = triggerName;
+                        setActiveStep((step) => step + 1);
+                    }}
+                />
+            )
+        },
+        {
+            name: "Complete trigger fields",
+            component: (
+                <FieldsCompleter
+                    onDone={(args) => {
+                        newApplet.triggerArgs = args;
+                        setActiveStep((step) => step + 1);
+                    }}
+                />
+            )
+        },
+        // action
+        {
+            name: "Choose action app",
+            component: (
+                <AppSelector
+                    actionsOnly
+                    onAppClick={(appName) => {
+                        newApplet.actionApp = appName;
+                        console.log(newApplet);
+                        setActiveStep((step) => step + 1);
+                    }}
+                />
+            )
+        },
+        {
+            name: "Select action",
+            component: (
+                <ActionSelector
+                    onActionClick={(actionName) => {
+                        newApplet.action = actionName;
+                        console.log(newApplet);
+                        setActiveStep((step) => step + 1);
+                    }}
+                />
+            )
+        },
+        {
+            name: "Complete action fields",
+            component: (
+                <FieldsActionCompleter
+                    onDone={(args) => {
+                        newApplet.actionArgs = args;
+                        console.log("Done!!!", "Send", newApplet);
+                    }}
+                />
+            )
+        }
+    ];
+    return (
+        <Fragment>
+            <Stepper activeStep={activeStep}>
+                {
+                    steps.map((step) => (
+                        <Step key={step.name}>
+                            <StepLabel>{step.name}</StepLabel>
+                        </Step>
+                    ))
+                }
+            </Stepper>
+            <Stack justifyContent="center">
+                {steps[activeStep].component}
+            </Stack>
+            <Stack
+                direction="row"
+                justifyContent="center"
+            >
+                <Button
+                    disabled={activeStep == 0}
+                    onClick={() => setActiveStep((step) => step - 1)}
+                >
+                    Back
+                </Button>
+                <Button
+                    disabled={activeStep >= steps.length - 1}
+                    onClick={() => setActiveStep((step) => step + 1)}
+                >
+                    Next
+                </Button>
+                <Button
+                    variant="contained"
+                    disabled={activeStep < steps.length - 1}
+                    onClick={() => console.log("Done!!!")}
+                >
+                    Done
+                </Button>
+            </Stack>
+        </Fragment>
 
-    if (!configureMode) {
-        return (
-            <Card variant="outlined" sx={{ padding: 2 }}>
-                <Box sx={style}>
-                    <Typography variant="h4">If This</Typography>
-                </Box>
-                <Box sx={style}>
-                    <Button variant="contained"
-                        onClick={() => setConfigureMode(true)}
-                    >
-                        Add
-                    </Button>
-                </Box>
-            </Card>
-        );
-    } else {
-        return (
-            <Card variant="outlined" sx={{
-                padding: 2,
-                cursor: "pointer"
-            }}>
-                <Stepper activeStep={activeStep} alternativeLabel>
-                    {
-                        steps.map((step) => {
-                            return (
-                                <Step key={step.name}>
-                                    <StepLabel>{step.name}</StepLabel>
-                                </Step>
-                            );
-                        })
-                    }
-                </Stepper>
-
-                {steps[activeStep < steps.length ? activeStep : activeStep - 1].element}
-
-                <Box sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    pt: 2,
-                    justifyContent: "space-between"
-                }}>
-                    <Button
-                        onClick={() => setActiveStep((step) => step > 0 ? step - 1 : step)}>
-                        Back
-                    </Button>
-                    <Button
-                        onClick={() => setActiveStep((step) => step < steps.length ? step + 1 : step)}>
-                        { activeStep == steps.length - 1 ? "Done" : "Next" }
-                    </Button>
-                </Box>
-            </Card>
-        );
-    }
+    );
 };
 
 export const Create = () => {
-    useEffect(() => {
-        console.log("//TODO @imblowfish: Check now edited applet");
-    }, []);
-
-    const style = {
-        mx: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "300px"
-    };
-
     return (
         <PageWrapper>
             <Container>
-                <Stack spacing={2} sx={style}>
-                    <TriggerConfiguration />
-                    {/* <ActionConfiguration /> */}
-                </Stack>
+                <CreateFlow />
             </Container>
         </PageWrapper>
     );

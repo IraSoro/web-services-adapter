@@ -48,7 +48,14 @@ const AppsList = (props) => {
     useEffect(() => {
         fetch(`/api/v1/search/apps/${props.filter ?? ""}`)
             .then((resp) => resp.json())
-            .then((apps) => setApps(apps))
+            .then((apps) => {
+                if (props.triggersOnly) {
+                    return setApps(apps.filter((app) => app.triggers.length > 0));
+                } else if (props.actionsOnly) {
+                    return setApps(apps.filter((app) => app.commands.length > 0));
+                }
+                return setApps(apps);
+            })
             .catch((err) => console.error(err));
     }, [props.filter]);
 
@@ -66,6 +73,7 @@ const AppsList = (props) => {
     return (
         <Stack
             direction="row"
+            justifyContent="center"
             padding={2}
             spacing={2}
         >
@@ -83,6 +91,8 @@ export const AppSelector = (props) => {
             <Container>
                 <AppsList
                     filter={filter}
+                    actionsOnly={props.actionsOnly}
+                    triggersOnly={props.triggersOnly}
                     onAppClick={props.onAppClick}
                 />
             </Container>
