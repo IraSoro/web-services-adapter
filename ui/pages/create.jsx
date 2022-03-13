@@ -1,8 +1,10 @@
 import React, {
-    Fragment,
     useState,
     useEffect
 } from "react";
+import {
+    useNavigate
+} from "react-router-dom";
 import {
     Button,
     Container,
@@ -18,115 +20,85 @@ import {
 } from "../components";
 import {
     AppFactory
-} from "../app-factory";
+} from "../factory";
 
 
-const newApplet = {
-    triggerApp: "",
-    trigger: "",
+let applet = {
+    triggerAppName: "",
+    triggerName: "",
     triggerArgs: {},
 
-    actionApp: "",
-    action: "",
+    actionAppName: "",
+    actionName: "",
     actionArgs: {}
 };
 
-const AppTrigger = (props) => {
-    return (
-        <Button
-            variant="text"
-            onClick={() => props.onClick(props.name)}
-        >
-            {props.name}
-        </Button>
-    );
-};
 
-const TriggerSelector = (props) => {
+const ActionTriggerSelector = (props) => {
     const [triggers, setTriggers] = useState([]);
-
-    useEffect(() => {
-        fetch(`/api/v1/apps/${newApplet.triggerApp}`)
-            .then((resp) => resp.json())
-            .then((app) => setTriggers(app.triggers))
-            .catch((err) => console.error(err));
-    }, []);
-
-    const triggersComponents = triggers.map((trigger) => {
-        return (
-            <AppTrigger
-                key={trigger}
-                name={trigger}
-                onClick={props.onTriggerClick}
-            />
-        );
-    });
-
-    return (
-        <Stack
-            direction="row"
-            justifyContent="center"
-            padding={2}
-            spacing={2}
-        >
-            {triggersComponents}
-        </Stack>
-    );
-};
-
-const ActionSelector = (props) => {
     const [actions, setActions] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${newApplet.actionApp}`)
+        const appName = props.triggerMode
+            ? applet.triggerAppName
+            : applet.actionAppName;
+        fetch(`/api/v1/apps/${appName}`)
             .then((resp) => resp.json())
-            .then((app) => setActions(app.commands))
+            .then((app) => props.triggerMode
+                ? setTriggers(app.triggers)
+                : setActions(app.commands))
             .catch((err) => console.error(err));
     }, []);
 
-    const actionsComponents = actions.map((action) => {
+    const selectedArr = props.triggerMode
+        ? triggers
+        : actions;
+
+    const components = selectedArr.map((name) => {
         return (
-            <AppTrigger
-                key={action}
-                name={action}
-                onClick={props.onActionClick}
-            />
+            <Button
+                key={name}
+                variant="text"
+                onClick={() => props.onSelect(name)}
+            >
+                {name}
+            </Button>
         );
     });
 
     return (
         <Stack
-            direction="row"
+            direction="column"
             justifyContent="center"
             padding={2}
             spacing={2}
         >
-            {actionsComponents}
+            {components}
         </Stack>
     );
 };
 
 const FieldsCompleter = (props) => {
+    if (props.triggerMode) {
+        return (
+            <AppFactory
+                app={applet.triggerAppName}
+                trigger={applet.triggerName}
+                onDone={props.onComplete}
+            />
+        );
+    }
     return (
         <AppFactory
-            app={newApplet.triggerApp}
-            trigger={newApplet.trigger}
-            onDone={props.onDone}
+            app={applet.actionAppName}
+            action={applet.actionName}
+            onDone={props.onComplete}
         />
     );
 };
 
-const FieldsActionCompleter = (props) => {
-    return (
-        <AppFactory
-            app={newApplet.actionApp}
-            action={newApplet.action}
-            onDone={props.onDone}
-        />
-    );
-}
-
-const CreateFlow = () => {
+const CreationFlow = () => {
+    const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
 
     const steps = [
@@ -136,8 +108,8 @@ const CreateFlow = () => {
             component: (
                 <AppSelector
                     triggersOnly
-                    onAppClick={(appName) => {
-                        newApplet.triggerApp = appName;
+                    onAppClick={(app) => {
+                        applet.triggerAppName = app;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -146,9 +118,10 @@ const CreateFlow = () => {
         {
             name: "Select trigger",
             component: (
-                <TriggerSelector
-                    onTriggerClick={(triggerName) => {
-                        newApplet.trigger = triggerName;
+                <ActionTriggerSelector
+                    triggerMode
+                    onSelect={(trigger) => {
+                        applet.triggerName = trigger;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -158,8 +131,9 @@ const CreateFlow = () => {
             name: "Complete trigger fields",
             component: (
                 <FieldsCompleter
-                    onDone={(args) => {
-                        newApplet.triggerArgs = args;
+                    triggerMode
+                    onComplete={(args) => {
+                        applet.triggerArgs = args;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -171,9 +145,8 @@ const CreateFlow = () => {
             component: (
                 <AppSelector
                     actionsOnly
-                    onAppClick={(appName) => {
-                        newApplet.actionApp = appName;
-                        console.log(newApplet);
+                    onAppClick={(app) => {
+                        applet.actionAppName = app;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -182,10 +155,10 @@ const CreateFlow = () => {
         {
             name: "Select action",
             component: (
-                <ActionSelector
-                    onActionClick={(actionName) => {
-                        newApplet.action = actionName;
-                        console.log(newApplet);
+                <ActionTriggerSelector
+                    actionMode
+                    onSelect={(action) => {
+                        applet.actionName = action;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -194,64 +167,43 @@ const CreateFlow = () => {
         {
             name: "Complete action fields",
             component: (
-                <FieldsActionCompleter
-                    onDone={(args) => {
-                        newApplet.actionArgs = args;
-                        console.log("Done!!!", "Send", newApplet);
+                <FieldsCompleter
+                    actionMode
+                    onComplete={(args) => {
+                        applet.actionArgs = args;
+                        // TODO @imblowfish: Реализовать отправку на сервер
+                        console.log("Send", applet, "to server");
+                        navigate("/");
                     }}
                 />
             )
         }
     ];
+
     return (
-        <Fragment>
+        <Container>
             <Stepper activeStep={activeStep}>
                 {
-                    steps.map((step) => (
-                        <Step key={step.name}>
-                            <StepLabel>{step.name}</StepLabel>
-                        </Step>
-                    ))
+                    steps.map((step) => {
+                        return (
+                            <Step key={step.name}>
+                                <StepLabel>{step.name}</StepLabel>
+                            </Step>
+                        );
+                    })
                 }
             </Stepper>
-            <Stack justifyContent="center">
-                {steps[activeStep].component}
-            </Stack>
-            <Stack
-                direction="row"
-                justifyContent="center"
-            >
-                <Button
-                    disabled={activeStep == 0}
-                    onClick={() => setActiveStep((step) => step - 1)}
-                >
-                    Back
-                </Button>
-                <Button
-                    disabled={activeStep >= steps.length - 1}
-                    onClick={() => setActiveStep((step) => step + 1)}
-                >
-                    Next
-                </Button>
-                <Button
-                    variant="contained"
-                    disabled={activeStep < steps.length - 1}
-                    onClick={() => console.log("Done!!!")}
-                >
-                    Done
-                </Button>
-            </Stack>
-        </Fragment>
-
+            {steps[activeStep].component}
+        </Container>
     );
 };
 
 export const Create = () => {
+    applet = {};
+
     return (
         <PageWrapper>
-            <Container>
-                <CreateFlow />
-            </Container>
+            <CreationFlow />
         </PageWrapper>
     );
 };
