@@ -1,6 +1,7 @@
 import express from "express";
 
 import { appsManager } from "../core/managers/apps-manager.js";
+import { appletsManager } from "../core/managers/applets-manager.js";
 
 
 const createAppsRouter = () => {
@@ -41,12 +42,46 @@ const createAppsRouter = () => {
     return router;
 };
 
+const createAppletsRouter = () => {
+    const router = express.Router();
+
+    router.get("/", (_, res) => {
+        res.json(appletsManager.applets);
+    });
+
+    router.post("/", (req, res) => {
+        appletsManager.add(req.body);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    router.post("/:appletID", (req, res) => {
+        const appletID = req.params.appletID;
+        const params = req.body;
+        appletsManager.update(appletID, params);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    router.delete("/:appletID", (req, res) => {
+        appletsManager.delete(req.params.appletID);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    return router;
+};
+
 export default function () {
     console.log("Initialize REST API v1 router");
 
     const router = express.Router();
 
     router.use("/apps", createAppsRouter());
+    router.use("/applets", createAppletsRouter());
 
     return router;
 }
