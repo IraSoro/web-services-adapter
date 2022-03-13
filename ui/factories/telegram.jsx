@@ -1,4 +1,7 @@
-import React from "react";
+import React, {
+    useState,
+    useEffect
+} from "react";
 import {
     Button,
     Stack,
@@ -12,26 +15,47 @@ import { BaseFactory } from "./base-factory";
 
 // Actions
 const SendMessageAction = (props) => {
+    const [chats, setChats] = useState([]);
+
     const args = {
-        chat: "Personal",
+        chatID: chats[0] ? chats[0].chatID : 0,
         message: ""
     };
 
-    const setChat = (newChat) => args.chat = newChat;
+    useEffect(() => {
+        fetch("/telegram/chats")
+            .then((resp) => resp.json())
+            .then((chats) => setChats(chats))
+            .catch((err) => console.error(err));
+    }, []);
+
+    const setChat = (newChat) => args.chatID = newChat;
     const setMessage = (newMessage) => args.message = newMessage;
 
     const isValidArguments = () => {
-        return args.chat && args.message.length;
+        return args.chatID && Boolean(args.message.length);
     };
+
+    const chatItems = [];
+    for (const chat of chats) {
+        chatItems.push(
+            <MenuItem
+                key={chat.chatID}
+                value={chat.chatID}
+            >
+                {chat.username}
+            </MenuItem>
+        );
+    }
 
     return (
         <Stack sx={{ width: "200px" }}>
             <Select
                 label="Chat"
-                value={args.chat}
+                value={chats[0] ? chats[0].chatID : ""}
                 onChange={(event) => setChat(event.target.value)}
             >
-                <MenuItem value={"Personal"}>Personal</MenuItem>
+                {chatItems}
             </Select>
             <TextField
                 label="Send message..."
@@ -42,7 +66,7 @@ const SendMessageAction = (props) => {
                 variant="outlined"
                 onClick={() => {
                     if (isValidArguments()) {
-                        props.onDone();
+                        props.onDone(args);
                     }
                 }}
             >
@@ -54,26 +78,51 @@ const SendMessageAction = (props) => {
 
 // Triggers
 const ReceiveMessageTrigger = (props) => {
+    const [chats, setChats] = useState([]);
+
     const args = {
-        chat: "Personal",
+        chatID: chats[0] ? chats[0].chatID : 0,
         message: ""
     };
 
-    const setChat = (newChat) => args.chat = newChat;
-    const setMessage = (newMessage) => args.message = newMessage;
+    useEffect(() => {
+        fetch("/telegram/chats")
+            .then((resp) => resp.json())
+            .then((chats) => setChats(chats))
+            .catch((err) => console.error(err));
+    }, []);
+
+    const setChat = (newChat) => {
+        args.chatID = newChat;
+    };
+    const setMessage = (newMessage) => {
+        args.message = newMessage;
+    };
 
     const isValidArguments = () => {
-        return args.chat && args.message.length;
+        return args.chatID && Boolean(args.message.length);
     };
+
+    const chatItems = [];
+    for (const chat of chats) {
+        chatItems.push(
+            <MenuItem
+                key={chat.chatID}
+                value={chat.chatID}
+            >
+                {chat.username}
+            </MenuItem>
+        );
+    }
 
     return (
         <Stack sx={{ width: "200px" }}>
             <Select
                 label="Chat"
-                value={args.chat}
+                value={chats[0] ? chats[0].chatID : ""}
                 onChange={(event) => setChat(event.target.value)}
             >
-                <MenuItem value={"Personal"}>Personal</MenuItem>
+                {chatItems}
             </Select>
             <TextField
                 label="On receive..."
@@ -84,7 +133,7 @@ const ReceiveMessageTrigger = (props) => {
                 variant="outlined"
                 onClick={() => {
                     if (isValidArguments()) {
-                        props.onDone();
+                        props.onDone(args);
                     }
                 }}
             >

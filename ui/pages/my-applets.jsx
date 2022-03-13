@@ -15,27 +15,16 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { PageWrapper } from "../components";
 
 
-// TODO @imblowfish: Удалить MOCK-объект
-const mockApplets = [
-    { id: "01", active: true, name: "On ReceiveMessage in Telegram SendMessage in Telegram" },
-    { id: "02", active: false, name: "On ReceiveMessage in Telegram SendMessage in Telegram" },
-    { id: "03", active: true, name: "On ReceiveMessage in Telegram SendMessage in Telegram" }
-];
-
 const AppletCard = (props) => {
+    const [needUpdate, setNeedUpdate] = useState(true);
     const [applet, setApplet] = useState({});
 
     useEffect(() => {
-        // TODO @imblowfish: Обращение к API для получение информации об апплете
-        for (const mockApplet of mockApplets) {
-            if (mockApplet.id == props.id) {
-                setApplet(mockApplet);
-                return;
-            }
-        }
-    }, []);
-
-    console.log("Active", applet.active);
+        fetch(`/api/v1/applets/${props.id}`)
+            .then((resp) => resp.json())
+            .then((applet) => setApplet(applet))
+            .catch((err) => console.error(err));
+    }, [needUpdate]);
 
     return (
         <Paper
@@ -63,13 +52,24 @@ const AppletCard = (props) => {
                 <Switch
                     color="primary"
                     checked={Boolean(applet.active)}
-                    onChange={(event) => console.log("// TODO @imblowfish: Change active to", setApplet({
-                        ...applet,
-                        active: event.target.checked
-                    }))}
+                    onChange={(event) => {
+                        fetch(`/api/v1/applets/${props.id}`, {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                active: event.target.checked
+                            })
+                        })
+                            .then((resp) => resp.json())
+                            .then(() => setNeedUpdate(!needUpdate))
+                            .catch((err) => console.error(err));
+                    }}
                 />
                 <IconButton
-                    onClick={() => console.log("// TODO @imblowfish: Delete applet")}
+                    onClick={() => props.onDeleteApplet(props.id)}
                 >
                     <DeleteIcon />
                 </IconButton>
@@ -80,21 +80,37 @@ const AppletCard = (props) => {
 };
 
 const AppletsList = () => {
-    const [applets, setApplets] = useState([]);
+    const [needUpdate, setNeedUpdate] = useState(false);
+    const [applets, setApplets] = useState({});
 
     useEffect(() => {
         // TODO @imblowfish: Обращение к API для получения списка апплетов
-        setApplets(mockApplets);
-    }, []);
+        fetch("/api/v1/applets")
+            .then((resp) => resp.json())
+            .then((applets) => setApplets(applets))
+            .catch((err) => console.error(err));
+    }, [needUpdate]);
 
-    const appletCards = applets.map((applet) => {
-        return (
+    const appletCards = [];
+    for (const id of Object.keys(applets)) {
+        appletCards.push(
             <AppletCard
-                key={applet.id}
-                id={applet.id}
+                key={id}
+                id={id}
+                onDeleteApplet={(id) => {
+                    fetch(`/api/v1/applets/${id}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    })
+                        .then((resp) => resp.json())
+                        .then(() => setNeedUpdate(!needUpdate))
+                        .catch((err) => console.error(err));
+                }}
             />
         );
-    });
+    }
 
     return (
         <Stack

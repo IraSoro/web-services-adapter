@@ -19,7 +19,7 @@ const ConnectButton = (props) => {
     const navigate = useNavigate();
     const [connection, setConnection] = useState({
         connected: false,
-        connectURL: ""
+        authURL: ""
     });
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const ConnectButton = (props) => {
             .then((resp) => resp.json())
             .then((app) => setConnection({
                 connected: app.connected,
-                connectURL: app.connectURL
+                authURL: app.authURL
             }))
             .catch((err) => console.error(err));
     }, []);
@@ -45,7 +45,7 @@ const ConnectButton = (props) => {
     return (
         <Button
             variant="outlined"
-            onClick={() => globalThis.open(connection.connectURL, "_blank")}
+            onClick={() => globalThis.open(connection.authURL, "_blank")}
         >
             Connect
         </Button>

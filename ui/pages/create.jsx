@@ -172,8 +172,17 @@ const CreationFlow = () => {
                     onComplete={(args) => {
                         applet.actionArgs = args;
                         // TODO @imblowfish: Реализовать отправку на сервер
-                        console.log("Send", applet, "to server");
-                        navigate("/");
+                        fetch("/api/v1/applets", {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(applet)
+                        })
+                            .then((resp) => resp.json())
+                            .then(() => navigate("/"))
+                            .catch((err) => console.error(err));
                     }}
                 />
             )
