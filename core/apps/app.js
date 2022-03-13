@@ -120,8 +120,8 @@ export class App {
      * @returns {Command}
      */
     createCommand(commandName, args) {
-        if (Object.keys(this._triggers).includes(commandName)) {
-            return new this._triggers[commandName](this._ctx, args);
+        if (Object.keys(this._commands).includes(commandName)) {
+            return new this._commands[commandName](this._ctx, args);
         }
         throw new UnknownCommandError(this._name, commandName);
     }

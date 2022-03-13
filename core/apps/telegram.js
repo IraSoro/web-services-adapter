@@ -3,6 +3,9 @@ import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
 import {
+    receivedMessagesQueue
+} from "../../utils/telegram-bot.js";
+import {
     App,
     Command
 } from "./app.js";
@@ -13,11 +16,18 @@ class ReceiveMessage extends Command {
         super(ctx, args);
     }
 
-    async exec() {
-        return Promise((resolve) => {
-            const bot = new Telegraf(this._ctx.token);
-            bot.on("message", (ctx) => {
-                resolve(ctx.message.text);
+    exec() {
+        const checker = (botCtx) => {
+            if (botCtx.message.chat.id == this._args.chatID
+                && botCtx.message.text == this._args.message) {
+                return true;
+            }
+            return false;
+        };
+        return new Promise((resolve) => {
+            receivedMessagesQueue.push({
+                resolver: resolve,
+                checker: (botCtx) => checker(botCtx)
             });
         });
     }
@@ -78,6 +88,7 @@ export class Telegram extends App {
                     return;
                 }
                 this._ctx.chatID = req.body.chatID;
+                this._ctx.username = req.body.username;
                 res.json({
                     res: "Success"
                 });
@@ -88,6 +99,14 @@ export class Telegram extends App {
                     reason: "chatID is undefined"
                 });
             }
+        });
+        router.get("/telegram/chats", (_, res) => {
+            res.json([
+                {
+                    chatID: this._ctx.chatID,
+                    username: this._ctx.username
+                }
+            ]);
         });
         return router;
     }

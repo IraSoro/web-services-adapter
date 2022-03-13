@@ -3,6 +3,7 @@ import { Telegraf } from "telegraf";
 
 import { cfgManager } from "../core/managers/cfg-manager.js";
 
+export const receivedMessagesQueue = [];
 
 export class TelegramBot {
     constructor() {
@@ -34,7 +35,8 @@ export class TelegramBot {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        chatID: ctx.message.chat.id
+                        chatID: ctx.message.chat.id,
+                        username: ctx.message.chat.username
                     })
                 });
                 const json = await response.json();
@@ -42,7 +44,14 @@ export class TelegramBot {
             } catch (err) {
                 console.error("Failed", JSON.stringify(err));
             }
+        });
 
+        this.__bot.on("message", (ctx) => {
+            for (const msg of receivedMessagesQueue) {
+                if (msg.checker(ctx)) {
+                    msg.resolver();
+                }
+            }
         });
     }
 
