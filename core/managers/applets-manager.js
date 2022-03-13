@@ -101,6 +101,10 @@ class AppletsManager {
         this.__applets.get(newAppletID).executor.launch();
     }
 
+    get(appletID) {
+        return this.applets[appletID];
+    }
+
     delete(appletID) {
         this.__applets.delete(appletID);
     }

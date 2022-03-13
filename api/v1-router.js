@@ -56,6 +56,16 @@ const createAppletsRouter = () => {
         });
     });
 
+    router.get("/:appletID", (req, res) => {
+        const appletID = req.params.appletID;
+        const applet = appletsManager.get(appletID);
+        if (!applet) {
+            res.status(404).send();
+            return;
+        }
+        res.json(applet);
+    });
+
     router.post("/:appletID", (req, res) => {
         const appletID = req.params.appletID;
         const params = req.body;
