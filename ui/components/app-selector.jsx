@@ -46,7 +46,7 @@ const AppsList = (props) => {
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/search/apps/${props.filter ?? ""}`)
+        fetch(`/api/v1/apps/${props.filter ?? ""}/search`)
             .then((resp) => resp.json())
             .then((apps) => {
                 if (props.triggersOnly) {

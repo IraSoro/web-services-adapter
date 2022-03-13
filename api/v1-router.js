@@ -3,16 +3,24 @@ import express from "express";
 import { appsManager } from "../core/apps-manager.js";
 
 
-export default function () {
-    console.log("Initialize REST API v1 router");
-
+const createAppsRouter = () => {
     const router = express.Router();
 
-    router.get("/apps", (_, res) => {
+    router.get("/", (_, res) => {
         res.json(appsManager.apps);
     });
 
-    router.get("/apps/:appName", (req, res) => {
+    router.get("/search", (_, res) => {
+        return res.json(appsManager.apps);
+    });
+
+    router.get("/:filter/search", (req, res) => {
+        const pattern = new RegExp(`${req.params.filter}*`, "i");
+        const apps = appsManager.apps.filter((app) => pattern.test(app.name));
+        res.json(apps);
+    });
+
+    router.get("/:appName", (req, res) => {
         const app = appsManager.getAppByName(req.params.appName);
         if (app) {
             res.json(app);
@@ -21,7 +29,7 @@ export default function () {
         }
     });
 
-    router.get("/apps/:appName/icon", (req, res) => {
+    router.get("/:appName/icon", (req, res) => {
         const app = appsManager.getAppByName(req.params.appName);
         if (!app) {
             res.status(404).send();
@@ -30,15 +38,15 @@ export default function () {
         res.redirect(`/icons/${app.icon}`);
     });
 
-    router.get("/search/apps", (req, res) => {
-        res.json(appsManager.apps);
-    });
+    return router;
+};
 
-    router.get("/search/apps/:filter", (req, res) => {
-        const pattern = new RegExp(`${req.params.filter}*`, "i");
-        const apps = appsManager.apps.filter((app) => pattern.test(app.name));
-        res.json(apps);
-    });
+export default function () {
+    console.log("Initialize REST API v1 router");
+
+    const router = express.Router();
+
+    router.use("/apps", createAppsRouter());
 
     return router;
 }
