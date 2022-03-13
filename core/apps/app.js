@@ -1,6 +1,6 @@
 import express from "express";
 
-import { cfgManager } from "../cfg-manager.js";
+import { cfgManager } from "../managers/cfg-manager.js";
 
 
 export class UnknownCommandError extends Error {

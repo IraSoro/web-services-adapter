@@ -1,6 +1,6 @@
-import { GoogleCalendar } from "./apps/google.js";
-import { Scheduler } from "./apps/scheduler.js";
-import { Telegram } from "./apps/telegram.js";
+import { GoogleCalendar } from "../apps/google.js";
+import { Scheduler } from "../apps/scheduler.js";
+import { Telegram } from "../apps/telegram.js";
 
 
 class UnknownApplicationError extends Error {

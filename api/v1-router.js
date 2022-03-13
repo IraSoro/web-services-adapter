@@ -1,6 +1,6 @@
 import express from "express";
 
-import { appsManager } from "../core/apps-manager.js";
+import { appsManager } from "../core/managers/apps-manager.js";
 
 
 const createAppsRouter = () => {

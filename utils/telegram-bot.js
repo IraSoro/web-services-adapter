@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
-import { cfgManager } from "../core/cfg-manager.js";
+import { cfgManager } from "../core/managers/cfg-manager.js";
 
 
 export class TelegramBot {
