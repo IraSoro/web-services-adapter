@@ -3,11 +3,35 @@ import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
 import {
+    receivedMessagesQueue
+} from "../../utils/telegram-bot.js";
+import {
     App,
-    Command,
-    UnknownCommandError
+    Command
 } from "./app.js";
 
+
+class ReceiveMessage extends Command {
+    constructor(ctx, args) {
+        super(ctx, args);
+    }
+
+    exec() {
+        const checker = (botCtx) => {
+            if (botCtx.message.chat.id == this._args.chatID
+                && botCtx.message.text == this._args.message) {
+                return true;
+            }
+            return false;
+        };
+        return new Promise((resolve) => {
+            receivedMessagesQueue.push({
+                resolver: resolve,
+                checker: (botCtx) => checker(botCtx)
+            });
+        });
+    }
+}
 
 class SendMessage extends Command {
     constructor(ctx, args) {
@@ -23,6 +47,14 @@ class SendMessage extends Command {
 export class Telegram extends App {
     constructor() {
         super("Telegram");
+
+        this._triggers = {
+            "ReceiveMessage": ReceiveMessage
+        };
+
+        this._commands = {
+            "SendMessage": SendMessage
+        };
     }
 
     isAlreadyConnected() {
@@ -56,6 +88,7 @@ export class Telegram extends App {
                     return;
                 }
                 this._ctx.chatID = req.body.chatID;
+                this._ctx.username = req.body.username;
                 res.json({
                     res: "Success"
                 });
@@ -67,16 +100,15 @@ export class Telegram extends App {
                 });
             }
         });
+        router.get("/telegram/chats", (_, res) => {
+            res.json([
+                {
+                    chatID: this._ctx.chatID,
+                    username: this._ctx.username
+                }
+            ]);
+        });
         return router;
-    }
-
-    createCommand(commandName, args) {
-        switch (commandName) {
-            case "SendMessage":
-                return new SendMessage(this._ctx, args);
-            default:
-                throw new UnknownCommandError(this._name, commandName);
-        }
     }
 
     async check() {

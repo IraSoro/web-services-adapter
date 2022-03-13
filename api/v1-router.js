@@ -1,68 +1,97 @@
 import express from "express";
 
-import { appsManager } from "../core/apps-manager.js";
+import { appsManager } from "../core/managers/apps-manager.js";
+import { appletsManager } from "../core/managers/applets-manager.js";
 
+
+const createAppsRouter = () => {
+    const router = express.Router();
+
+    router.get("/", (_, res) => {
+        res.json(appsManager.apps);
+    });
+
+    router.get("/search", (_, res) => {
+        return res.json(appsManager.apps);
+    });
+
+    router.get("/:filter/search", (req, res) => {
+        const pattern = new RegExp(`${req.params.filter}*`, "i");
+        const apps = appsManager.apps.filter((app) => pattern.test(app.name));
+        res.json(apps);
+    });
+
+    router.get("/:appName", (req, res) => {
+        const app = appsManager.getAppByName(req.params.appName);
+        if (app) {
+            res.json(app);
+        } else {
+            res.status(404).send();
+        }
+    });
+
+    router.get("/:appName/icon", (req, res) => {
+        const app = appsManager.getAppByName(req.params.appName);
+        if (!app) {
+            res.status(404).send();
+            return;
+        }
+        res.redirect(`/icons/${app.icon}`);
+    });
+
+    return router;
+};
+
+const createAppletsRouter = () => {
+    const router = express.Router();
+
+    router.get("/", (_, res) => {
+        res.json(appletsManager.applets);
+    });
+
+    router.post("/", (req, res) => {
+        appletsManager.add(req.body);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    router.get("/:appletID", (req, res) => {
+        const appletID = req.params.appletID;
+        const applet = appletsManager.get(appletID);
+        if (!applet) {
+            res.status(404).send();
+            return;
+        }
+        res.json(applet);
+    });
+
+    router.post("/:appletID", (req, res) => {
+        const appletID = req.params.appletID;
+        const params = req.body;
+        appletsManager.update(appletID, params);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    router.delete("/:appletID", (req, res) => {
+        appletsManager.delete(req.params.appletID);
+        res.json({
+            res: "Success"
+        });
+    });
+
+    return router;
+};
 
 export default function () {
     console.log("Initialize REST API v1 router");
 
     const router = express.Router();
 
-    router.get("/", (_, res) => {
-        res.json({ res: "Success" });
-    });
-
-    router.get("/apps", (_, res) => {
-        res.json(appsManager.apps);
-    });
-
-    router.get("/apps/:appName", (req, res) => {
-        const pattern = new RegExp(`${req.params.appName}*`, "i");
-        const apps = [];
-        for (const app of appsManager.apps) {
-            if (pattern.test(app.name)) {
-                apps.push(app);
-            }
-        }
-        res.json(apps);
-    });
-
-    router.get("/apps/:appName/icon", (req, res) => {
-        const appName = req.params.appName;
-        const iconPath = appsManager.getAppIcon(appName);
-        try {
-            res.sendFile(iconPath, { root: "./" });
-        } catch (err) {
-            res.json({
-                res: "Failed",
-                description: "Cannot send app icon " + appName,
-                reason: JSON.stringify(err)
-            });
-        }
-    });
-
-    router.get("/connect/:appName", (req, res) => {
-        try {
-            const app = appsManager.getAppInstance(req.params.appName);
-            if (app.isAlreadyConnected()) {
-                res.json({
-                    res: "Success",
-                    msg: "Already connected"
-                });
-            } else {
-                res.json({
-                    res: "Success",
-                    authURL: app.getAuthURL()
-                });
-            }
-        } catch (err) {
-            res.json({
-                res: "Failed",
-                description: "Cannot connect to app" + req.params.appName,
-                reason: JSON.stringify(err)
-            });
-        }
-    });
+    router.use("/apps", createAppsRouter());
+    router.use("/applets", createAppletsRouter());
 
     return router;
 }

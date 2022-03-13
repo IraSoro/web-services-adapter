@@ -1,6 +1,6 @@
 import express from "express";
 
-import { cfgManager } from "../cfg-manager.js";
+import { cfgManager } from "../managers/cfg-manager.js";
 
 
 export class UnknownCommandError extends Error {
@@ -50,6 +50,8 @@ export class App {
     constructor(name) {
         this._name = name;
         this._ctx = cfgManager.getAppContext(name);
+        this._commands = {};
+        this._triggers = {};
     }
 
     /**
@@ -83,14 +85,32 @@ export class App {
     }
 
     /**
+     * Returns application triggers
+     * @returns {Array.<string>}
+     */
+    getTriggers() {
+        return (Object.keys(this._triggers));
+    }
+
+    /**
+     * Returns application commands
+     * @returns {Array.<string>}
+     */
+    getCommands() {
+        return (Object.keys(this._commands));
+    }
+
+    /**
      * Creates service trigger
      * @param {string} triggerName 
      * @param {string} args
      * @returns {Command}
      */
     createTrigger(triggerName, args) {
-        triggerName;
-        args;
+        if (Object.keys(this._triggers).includes(triggerName)) {
+            return new this._triggers[triggerName](this._ctx, args);
+        }
+        throw new UnknownTriggerError(this._name, triggerName);
     }
 
     /**
@@ -100,8 +120,10 @@ export class App {
      * @returns {Command}
      */
     createCommand(commandName, args) {
-        commandName;
-        args;
+        if (Object.keys(this._commands).includes(commandName)) {
+            return new this._commands[commandName](this._ctx, args);
+        }
+        throw new UnknownCommandError(this._name, commandName);
     }
 
     /**

@@ -18,6 +18,7 @@ const Header = () => {
             <ButtonGroup variant="text">
                 <Button onClick={() => navigate("/")}>My Applets</Button>
                 <Button onClick={() => navigate("/explore")}>Explore</Button>
+                <Button variant="outlined" onClick={() => navigate("/create")}>Create</Button>
             </ButtonGroup>
         </Stack>
     );

@@ -3,8 +3,7 @@ import { google } from "googleapis";
 
 import {
     App,
-    Command,
-    UnknownTriggerError
+    Command
 } from "./app.js";
 
 
@@ -130,17 +129,11 @@ class OnEvent extends Command {
 export class GoogleCalendar extends Google {
     constructor() {
         super("Google Calendar", "https://www.googleapis.com/auth/calendar");
-    }
 
-    createTrigger(triggerName, args) {
-        switch (triggerName) {
-            case "OnEvent":
-                return new OnEvent(this._ctx, args);
-            default:
-                throw new UnknownTriggerError(this._name, triggerName);
-        }
+        this._triggers = {
+            "OnEvent": OnEvent
+        };
     }
-
 
     async check() {
         const calendar = google.calendar({

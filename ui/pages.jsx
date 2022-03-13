@@ -1,5 +1,5 @@
-export { AppInfo } from "./pages/app-info";
-export { CreateApplet } from "./pages/create-applet";
+export { AppPage } from "./pages/app-page";
+export { Create } from "./pages/create";
 export { Explore } from "./pages/explore";
 export { MyApplets } from "./pages/my-applets";
 export { NotFound } from "./pages/not-found";

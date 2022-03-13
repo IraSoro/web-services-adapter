@@ -1,9 +1,6 @@
-import fs from "fs";
-
-import { IconsManager } from "./icons-manager.js";
-import { GoogleCalendar } from "./apps/google.js";
-import { Scheduler } from "./apps/scheduler.js";
-import { Telegram } from "./apps/telegram.js";
+import { GoogleCalendar } from "../apps/google.js";
+import { Scheduler } from "../apps/scheduler.js";
+import { Telegram } from "../apps/telegram.js";
 
 
 class UnknownApplicationError extends Error {
@@ -19,29 +16,17 @@ class AppsManager {
         this.__apps = {
             "Google Calendar": {
                 instance: new GoogleCalendar(),
-                icon: IconsManager.convertPath("icons8-google-calendar-48.png")
+                icon: "icons8-google-calendar-48.png"
             },
             "Scheduler": {
                 instance: new Scheduler(),
-                icon: IconsManager.convertPath("icons8-blank-48.png")
+                icon: "icons8-blank-48.png"
             },
             "Telegram": {
                 instance: new Telegram(),
-                icon: IconsManager.convertPath("icons8-telegram-app-48.png")
+                icon: "icons8-telegram-app-48.png"
             }
         };
-
-        this.__check();
-    }
-
-    __check() {
-        for (const appName of Object.keys(this.__apps)) {
-            try {
-                fs.accessSync(this.getAppIcon(appName));
-            } catch (err) {
-                throw new UnknownApplicationError(appName);
-            }
-        }
     }
 
     initRoutes(expressApp) {
@@ -56,27 +41,23 @@ class AppsManager {
         for (const [appName, properties] of Object.entries(this.__apps)) {
             apps.push({
                 name: appName,
-                connected: properties.instance.isAlreadyConnected()
+                icon: properties.icon,
+                connected: properties.instance.isAlreadyConnected(),
+                authURL: properties.instance.getAuthURL(),
+                commands: properties.instance.getCommands(),
+                triggers: properties.instance.getTriggers()
             });
         }
         return apps;
     }
-    
-    getAppInfo(appName) {
-        if (Object.keys(this.__apps).includes(appName)) {
-            return {
-                name: appName,
-                connected: this.__apps[appName].instance.isAlreadyConnected()
-            };
-        }
-        throw new UnknownApplicationError(appName);
-    }
 
-    getAppIcon(appName) {
-        if (Object.keys(this.__apps).includes(appName)) {
-            return this.__apps[appName].icon;
+    getAppByName(appName) {
+        for (const app of this.apps) {
+            if (app.name == appName) {
+                return app;
+            }
         }
-        throw new UnknownApplicationError(appName);
+        return null;
     }
 
     getAppInstance(appName) {

@@ -1,7 +1,6 @@
 import {
     App,
-    Command,
-    UnknownTriggerError
+    Command
 } from "./app.js";
 
 
@@ -29,19 +28,14 @@ class OnDateTime extends Command {
 export class Scheduler extends App {
     constructor() {
         super("Scheduler");
+
+        this._triggers = {
+            "OnDateTime": OnDateTime
+        };
     }
 
     isAlreadyConnected() {
         return true;
-    }
-
-    createTrigger(triggerName, args) {
-        switch (triggerName) {
-            case "OnDateTime":
-                return new OnDateTime(this._ctx, args);
-            default:
-                throw new UnknownTriggerError(this._name, triggerName);
-        }
     }
 
     async check() {
