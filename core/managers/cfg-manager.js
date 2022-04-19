@@ -1,6 +1,9 @@
 import fs from "fs";
 
 
+/* NOTE @imblowfish: Можно не обращать особое внимание на код здесь,
+в дальнейшем будет заменено на готовый пакет */
+
 class SaveConfigurationError extends Error {
     constructor() {
         super("Cannot save new configuration");

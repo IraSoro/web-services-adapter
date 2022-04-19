@@ -1,5 +1,9 @@
 import { appsManager } from "./apps-manager.js";
 
+
+/* FIXME @imblowfish: Совершенно неправильно сделана работа с промисами, нет возможности отменять их т.д.
+В дальнейшем нужно будет заменить на какой-нибудь готовый jobs manager  */
+
 class AppletExecutor {
     constructor(appletCtx) {
         const triggerApp = appsManager.getAppInstance(appletCtx.triggerAppName);

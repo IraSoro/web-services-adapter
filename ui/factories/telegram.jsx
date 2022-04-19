@@ -10,8 +10,6 @@ import {
     TextField
 } from "@mui/material";
 
-import { BaseFactory } from "./base-factory";
-
 
 // Actions
 const SendMessageAction = (props) => {
@@ -143,7 +141,7 @@ const ReceiveMessageTrigger = (props) => {
     );
 };
 
-export class TelegramFactory extends BaseFactory {
+export class TelegramFactory {
     createAction(name, props) {
         switch (name) {
             case "SendMessage":

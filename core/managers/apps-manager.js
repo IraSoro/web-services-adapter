@@ -1,5 +1,6 @@
-import { GoogleCalendar } from "../apps/google.js";
-import { Scheduler } from "../apps/scheduler.js";
+// TODO @imblowfish: Раскомментировать когда эти сервисы будут готовы для добавления в web ui
+/* import { GoogleCalendar } from "../apps/google.js";
+import { Scheduler } from "../apps/scheduler.js"; */
 import { Telegram } from "../apps/telegram.js";
 
 
@@ -11,21 +12,23 @@ class UnknownApplicationError extends Error {
     }
 }
 
+// FIXME @imblowfish: Этот класс нужно будет упростить, либо вовсе от него избавиться
 class AppsManager {
     constructor() {
         this.__apps = {
-            "Google Calendar": {
+            "Telegram": {
+                instance: new Telegram(),
+                icon: "icons8-telegram-app-48.png"
+            },
+            // TODO @imblowfish: Раскомментировать когда эти сервисы будут готовы для добавления в web ui
+            /* "Google Calendar": {
                 instance: new GoogleCalendar(),
                 icon: "icons8-google-calendar-48.png"
             },
             "Scheduler": {
                 instance: new Scheduler(),
                 icon: "icons8-blank-48.png"
-            },
-            "Telegram": {
-                instance: new Telegram(),
-                icon: "icons8-telegram-app-48.png"
-            }
+            }, */
         };
     }
 
