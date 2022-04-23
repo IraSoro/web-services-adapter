@@ -1,3 +1,24 @@
+import express from "express";
+
+import { cfgManager } from "../managers/cfg-manager.js";
+
+
+export class UnknownCommandError extends Error {
+    constructor(appName, unknownCommandName) {
+        const msg = `Cannot found command ${unknownCommandName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownCommandError";
+    }
+}
+
+export class UnknownTriggerError extends Error {
+    constructor(appName, unknownTriggerName) {
+        const msg = `Cannot found trigger ${unknownTriggerName} in the ${appName} app`;
+        super(msg);
+        this.name = "UnknownTriggerError";
+    }
+}
+
 /**
  * Base command class
  */
@@ -24,10 +45,21 @@ export class Command {
  */
 export class App {
     /**
-     * @param {Object} ctx Context with service parameters (API Tokens and etc.)
+     * @param {string} name Application name
      */
-    constructor(ctx) {
-        this._ctx = ctx;
+    constructor(name) {
+        this._name = name;
+        this._ctx = cfgManager.getAppContext(name);
+        this._commands = {};
+        this._triggers = {};
+    }
+
+    /**
+     * Check if client already connected to the application
+     * @returns {Boolean}
+     */
+    isAlreadyConnected() {
+        return false;
     }
 
     /**
@@ -45,34 +77,53 @@ export class App {
     }
 
     /**
+     * Returns application router
+     * @returns {Express.Router}
+     */
+    getRouter() {
+        return new express.Router();
+    }
+
+    /**
+     * Returns application triggers
+     * @returns {Array.<string>}
+     */
+    getTriggers() {
+        return (Object.keys(this._triggers));
+    }
+
+    /**
+     * Returns application commands
+     * @returns {Array.<string>}
+     */
+    getCommands() {
+        return (Object.keys(this._commands));
+    }
+
+    /**
      * Creates service trigger
-     * @param {string} name 
+     * @param {string} triggerName 
      * @param {string} args
      * @returns {Command}
      */
-    createTrigger(name, args) {
-        name;
-        args;
+    createTrigger(triggerName, args) {
+        if (Object.keys(this._triggers).includes(triggerName)) {
+            return new this._triggers[triggerName](this._ctx, args);
+        }
+        throw new UnknownTriggerError(this._name, triggerName);
     }
 
     /**
      * Creates service command
-     * @param {string} name 
+     * @param {string} commandName 
      * @param {string} args
      * @returns {Command}
      */
-    createCommand(name, args) {
-        name;
-        args;
-    }
-
-    /**
-     * Service authorization step
-     * @param {string} callback Authorization callback with authorization URL parameter
-     * @returns {Promise}
-     */
-    async auth(callback) {
-        callback;
+    createCommand(commandName, args) {
+        if (Object.keys(this._commands).includes(commandName)) {
+            return new this._commands[commandName](this._ctx, args);
+        }
+        throw new UnknownCommandError(this._name, commandName);
     }
 
     /**

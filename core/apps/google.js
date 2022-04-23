@@ -1,17 +1,22 @@
-import http from "http";
-
 import express from "express";
 import { google } from "googleapis";
 
-import { App, Command } from "./app.js";
+import {
+    App,
+    Command
+} from "./app.js";
 
 
 /**
  * Google services base class
  */
 class Google extends App {
-    constructor(ctx, scopes) {
-        super(ctx);
+    /**
+     * @param {string} name Google specific application name
+     * @param {string|Array.<string>} scopes Application permissions
+     */
+    constructor(name, scopes) {
+        super(name);
 
         this._ctx.oauth2 = new google.auth.OAuth2(
             this._ctx.clientID,
@@ -39,6 +44,14 @@ class Google extends App {
         });
     }
 
+    isAlreadyConnected() {
+        /*
+         * NOTE @imblowfish: Если credentials - пустой объект, значит не было
+         * обращения oauth2callback и нет токена, пользователь не авторизован
+         */
+        return Boolean(Object.entries(this._ctx.oauth2.credentials).length);
+    }
+
     getAuthType() {
         return "OAuth2";
     }
@@ -47,31 +60,26 @@ class Google extends App {
         return this._ctx.authURL;
     }
 
-    async auth(callback) {
-        return new Promise((resolve, reject) => {
-            callback(this._ctx.authURL);
+    getRouter() {
+        const router = new express.Router();
 
-            let server = null;
-
-            const redirectApp = express();
-            redirectApp.use(express.json());
-            redirectApp.get("/google/oauth2callback", async (req, res) => {
-                try {
-                    server.close();
-                    const { tokens } = await this._ctx.oauth2.getToken(req.query.code);
-                    this._ctx.oauth2.credentials = tokens;
-                    res.json({ status: "OAuth2 Success!" });
-                    resolve();
-                } catch (err) {
-                    res.json({ status: err });
-                    reject(err);
-                }
-            });
-
-            server = http.createServer(redirectApp).listen(3000, "localhost", () => {
-                console.log("Google RedirectApp running at localhost:3000");
-            });
+        router.get("/google/oauth2callback", async (req, res) => {
+            try {
+                const { tokens } = await this._ctx.oauth2.getToken(req.query.code);
+                this._ctx.oauth2.credentials = tokens;
+                res.json({
+                    res: "Success"
+                });
+            } catch (err) {
+                res.json({
+                    res: "Failed",
+                    description: "OAuth2 callback failed",
+                    reason: JSON.stringify(err)
+                });
+            }
         });
+
+        return router;
     }
 }
 
@@ -119,19 +127,13 @@ class OnEvent extends Command {
 }
 
 export class GoogleCalendar extends Google {
-    constructor(ctx) {
-        super(ctx, "https://www.googleapis.com/auth/calendar");
-    }
+    constructor() {
+        super("Google Calendar", "https://www.googleapis.com/auth/calendar");
 
-    createTrigger(name, args) {
-        switch (name) {
-            case "OnEvent":
-                return new OnEvent(this._ctx, args);
-            default:
-                throw new Error("Unknown trigger");
-        }
+        this._triggers = {
+            "OnEvent": OnEvent
+        };
     }
-
 
     async check() {
         const calendar = google.calendar({
@@ -141,7 +143,7 @@ export class GoogleCalendar extends Google {
 
         try {
             const list = await calendar.events.list({
-                calendarId: this._ctx.calendarID
+                calendarId: this._ctx.testCalendarID
             });
             if (list.status == 200) {
                 return Promise.resolve();

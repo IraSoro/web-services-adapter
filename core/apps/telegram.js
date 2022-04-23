@@ -1,8 +1,37 @@
+import express from "express";
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { App, Command } from "./app.js";
+import {
+    receivedMessagesQueue
+} from "../../utils/telegram-bot.js";
+import {
+    App,
+    Command
+} from "./app.js";
 
+
+class ReceiveMessage extends Command {
+    constructor(ctx, args) {
+        super(ctx, args);
+    }
+
+    exec() {
+        const checker = (botCtx) => {
+            if (botCtx.message.chat.id == this._args.chatID
+                && botCtx.message.text == this._args.message) {
+                return true;
+            }
+            return false;
+        };
+        return new Promise((resolve) => {
+            receivedMessagesQueue.push({
+                resolver: resolve,
+                checker: (botCtx) => checker(botCtx)
+            });
+        });
+    }
+}
 
 class SendMessage extends Command {
     constructor(ctx, args) {
@@ -16,21 +45,70 @@ class SendMessage extends Command {
 }
 
 export class Telegram extends App {
-    constructor(ctx) {
-        super(ctx);
+    constructor() {
+        super("Telegram");
+
+        this._triggers = {
+            "ReceiveMessage": ReceiveMessage
+        };
+
+        this._commands = {
+            "SendMessage": SendMessage
+        };
+    }
+
+    isAlreadyConnected() {
+        /* 
+         * NOTE @imblowfish: Если в контексте нет chatID пользователя,
+         * значит пользователь не авторизован
+         */
+        if ("chatID" in this._ctx) {
+            return Boolean(this._ctx.chatID);
+        }
+        return false;
     }
 
     getAuthType() {
         return "APIToken";
     }
 
-    createCommand(name, args) {
-        switch (name) {
-            case "SendMessage":
-                return new SendMessage(this._ctx, args);
-            default:
-                throw new Error("Unknown command");
-        }
+    getAuthURL() {
+        return this._ctx.botURL;
+    }
+
+    getRouter() {
+        const router = new express.Router();
+        router.post("/telegram/authcallback", (req, res) => {
+            if (req.body.chatID) {
+                if (this._ctx.chatID == req.body.chatID) {
+                    res.json({
+                        res: "Success",
+                        msg: "Already connected"
+                    });
+                    return;
+                }
+                this._ctx.chatID = req.body.chatID;
+                this._ctx.username = req.body.username;
+                res.json({
+                    res: "Success"
+                });
+            } else {
+                res.json({
+                    res: "Failed",
+                    description: "Invalid auth callback param",
+                    reason: "chatID is undefined"
+                });
+            }
+        });
+        router.get("/telegram/chats", (_, res) => {
+            res.json([
+                {
+                    chatID: this._ctx.chatID,
+                    username: this._ctx.username
+                }
+            ]);
+        });
+        return router;
     }
 
     async check() {
