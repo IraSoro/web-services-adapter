@@ -144,7 +144,7 @@ const ReceiveMessageTrigger = (props) => {
 export class TelegramFactory {
     createAction(name, props) {
         switch (name) {
-            case "SendMessage":
+            case "Send Message":
                 return <SendMessageAction {...props} />;
             default:
                 throw new Error("Unknown trigger name");
@@ -153,7 +153,7 @@ export class TelegramFactory {
 
     createTrigger(name, props) {
         switch (name) {
-            case "ReceiveMessage":
+            case "Receive Message":
                 return <ReceiveMessageTrigger {...props} />;
             default:
                 throw new Error("Unknown trigger name");
