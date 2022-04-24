@@ -5,3 +5,5 @@ public/*.mjs
 public/*.txt
 
 .config/common.json
+
+package-lock.json
