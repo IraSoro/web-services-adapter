@@ -2,9 +2,7 @@ import express from "express";
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import {
-    receivedMessagesQueue
-} from "../../utils/telegram-bot.js";
+import { createChannel } from "../../utils/fastmq.js";
 import {
     App,
     Command
@@ -12,6 +10,8 @@ import {
 
 
 class ReceiveMessage extends Command {
+    static counter = 0;
+
     constructor(ctx, args) {
         super(ctx, args);
     }
@@ -34,6 +34,23 @@ class ReceiveMessage extends Command {
             const result = await p;
             cb(result);
         };
+    exec() {
+        return new Promise((resolve, reject) => {
+            createChannel(`subscriber.${ReceiveMessage.counter++}`, "telegram-bot")
+                .then((channel) => {
+                    channel.subscribe("message", (msg) => {
+                        if (msg.payload.chatID != this._args.chatID
+                            || msg.payload.text != this._args.message) {
+                            return;
+                        }
+                        channel.disconnect();
+                        resolve(msg);
+                    });
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
     }
 }
 
