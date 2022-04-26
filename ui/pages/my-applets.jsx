@@ -52,6 +52,8 @@ const AppletCard = (props) => {
                     color="primary"
                     checked={Boolean(applet.active)}
                     onChange={(event) => {
+                        // FIXME @imblowfish: Метод на стороне Backend был удален
+                        // реализовать
                         fetch(`/api/v1/applets/${props.id}`, {
                             method: "POST",
                             headers: {
