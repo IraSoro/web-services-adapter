@@ -26,6 +26,19 @@ const AppletCard = (props) => {
             .catch((err) => console.error(err));
     }, [needUpdate]);
 
+    var strName = String(applet.name);
+    var lenStr = strName.length;
+    const widthCard = 400;
+    var heightCard = 0;
+    if (widthCard/lenStr < 3){
+        heightCard = (lenStr - widthCard/3)/2 + widthCard/3;
+    }
+    else{
+        heightCard = lenStr;
+    }
+    heightCard = String(heightCard);
+    heightCard = heightCard + "px";
+
     return (
         <Paper
             sx={{
@@ -33,8 +46,8 @@ const AppletCard = (props) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "150px",
-                height: "150px",
+                width: "400px",
+                height: heightCard,
                 cursor: "pointer"
             }}
             variant="outlined"
