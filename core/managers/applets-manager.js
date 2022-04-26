@@ -3,12 +3,13 @@ import { v4 as uuidV4 } from "uuid";
 import { appsManager } from "./apps-manager.js";
 
 
-export class Applet {
-    constructor(trigger, action) {
+class Applet {
+    constructor(name, trigger, action) {
+        // TODO @imblowfish: Реализовать счетчик выполнения апплета
+        // TODO @imblowfish: Реализовать включение/отключение апплета
+        this.__name = name;
         this.__isCancelled = false;
-        this.__executionsCount = 0;
-
-        this.___statesPromises = [
+        this.__statesPromises = [
             () => {
                 return new Promise((resolve, reject) => {
                     trigger(this.__createCallback(resolve, reject));
@@ -31,9 +32,13 @@ export class Applet {
         };
     }
 
+    get name() {
+        return this.__name;
+    }
+
     async launch() {
         this.__isCancelled = false;
-        for (const getStatePromise of this.___statesPromises) {
+        for (const getStatePromise of this.__statesPromises) {
             if (this.__isCancelled) {
                 return Promise.resolve("Applet was cancelled");
             }
@@ -43,7 +48,6 @@ export class Applet {
                 return Promise.reject(err);
             }
         }
-        this.__executionsCount++;
         setTimeout(() => this.launch());
         return Promise.resolve("Success");
     }
@@ -53,45 +57,50 @@ export class Applet {
     }
 }
 
-export class AppletsManager {
+class AppletsManager {
     constructor() {
         this.__applets = new Map();
     }
 
     get applets() {
-        const res = {};
+        const applets = [];
         for (const [uuid, applet] of this.__applets) {
-            res[uuid] = {
-                name: applet.name,
-                active: applet.active,
-                count: applet.instance.__executionsCount
-            };
+            applets.push({
+                uuid: uuid,
+                name: applet.name
+            });
         }
-        return res;
+        return applets;
     }
 
     add(appletCtx) {
         // TODO @imblowfish: Реализовать генерацию имени апплета
-        const appletName = "Some generated applet name";
+        const name = "Some generated applet name";
         const trigger = appsManager.getAppInstance(appletCtx.trigger.app)
             .createTrigger(appletCtx.trigger.name, appletCtx.trigger.args);
         const action = appsManager.getAppInstance(appletCtx.action.app)
             .createCommand(appletCtx.action.name, appletCtx.action.args);
-        const applet = new Applet(trigger.getFn(), action.getFn());
+        const applet = new Applet(name, trigger.getFn(), action.getFn());
         applet.launch();
-        this.__applets.set(uuidV4(), {
-            name: appletName,
-            active: true,
-            instance: applet
-        });
+        this.__applets.set(uuidV4(), applet);
     }
 
     get(appletUUID) {
-        return this.__applets.get(appletUUID);
+        if (!this.__applets.has(appletUUID)) {
+            return {};
+        }
+        const applet = this.__applets.get(appletUUID);
+        return {
+            uuid: appletUUID,
+            name: applet.name
+        };
     }
 
     delete(appletUUID) {
-        this.get(appletUUID).instance.cancel();
+        if (!this.__applets.has(appletUUID)) {
+            return;
+        }
+        this.__applets.get(appletUUID).cancel();
         this.__applets.delete(appletUUID);
     }
 }

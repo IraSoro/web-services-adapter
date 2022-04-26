@@ -82,7 +82,7 @@ const AppletCard = (props) => {
 
 const AppletsList = () => {
     const [needUpdate, setNeedUpdate] = useState(false);
-    const [applets, setApplets] = useState({});
+    const [applets, setApplets] = useState([]);
 
     useEffect(() => {
         // TODO @imblowfish: Обращение к API для получения списка апплетов
@@ -93,25 +93,23 @@ const AppletsList = () => {
     }, [needUpdate]);
 
     const appletCards = [];
-    for (const id of Object.keys(applets)) {
+    for (const applet of applets) {
         appletCards.push(
-            <Grid item xs={12}>
-                <AppletCard
-                    key={id}
-                    id={id}
-                    onDeleteApplet={(id) => {
-                        fetch(`/api/v1/applets/${id}`, {
-                            method: "DELETE",
-                            headers: {
-                                "Accept": "application/json"
-                            }
-                        })
-                            .then((resp) => resp.json())
-                            .then(() => setNeedUpdate(!needUpdate))
-                            .catch((err) => console.error(err));
-                    }}
-                />
-            </Grid>
+            <AppletCard
+                key={applet.uuid}
+                id={applet.uuid}
+                onDeleteApplet={(id) => {
+                    fetch(`/api/v1/applets/${id}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    })
+                        .then((resp) => resp.json())
+                        .then(() => setNeedUpdate(!needUpdate))
+                        .catch((err) => console.error(err));
+                }}
+            />
         );
     }
 
