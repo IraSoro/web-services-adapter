@@ -19,9 +19,6 @@ export class UnknownTriggerError extends Error {
     }
 }
 
-/**
- * Base command class
- */
 export class Command {
     /**
      * @param {Object} ctx Context with service parameters (API Tokens and etc.)
@@ -33,10 +30,26 @@ export class Command {
     }
 
     /**
-     * Command execution
-     * @returns {Promise}
+     * Callback parameter in the getFn returns value
+     * 
+     * @callback ResultCallback
+     * @param {any} result
+     * @param {any} error
      */
-    async exec() {
+
+    /**
+     * Function which returns from the getFn method
+     * 
+     * @callback CommandFunctionWithCallback
+     * @param {ResultCallback} cb - A result callback
+     */
+
+    /**
+     * Creates specific command
+     * 
+     * @return {CommandFunctionWithCallback} Command Function
+     */
+    getFn() {
     }
 }
 

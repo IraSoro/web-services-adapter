@@ -4,6 +4,11 @@ import { appsManager } from "./apps-manager.js";
 
 
 class Applet {
+    /**
+     * @param {string} name 
+     * @param {Command} trigger 
+     * @param {Command} action 
+     */
     constructor(name, trigger, action) {
         // TODO @imblowfish: Реализовать счетчик выполнения апплета
         // TODO @imblowfish: Реализовать включение/отключение апплета
@@ -62,6 +67,15 @@ class AppletsManager {
         this.__applets = new Map();
     }
 
+    /**
+     * @typedef AppletProperties
+     * @property {string} uuid
+     * @property {string} name
+     */
+
+    /**
+     * @returns {Array.<AppletProperties>}
+     */
     get applets() {
         const applets = [];
         for (const [uuid, applet] of this.__applets) {
@@ -73,6 +87,20 @@ class AppletsManager {
         return applets;
     }
 
+    /**
+     * Creates new trigger, launch it and add in the applets list
+     * 
+     * @param {Object} appletCtx - Context with applet properties
+     * @param {Object} appletCtx.trigger - Trigger properties
+     * @param {string} appletCtx.trigger.app - Application which using as trigger
+     * @param {string} appletCtx.trigger.name - Name of the application trigger
+     * @param {Object} appletCtx.trigger.args - Trigger specific arguments
+     * 
+     * @param {Object} appletCtx.action - Action properties
+     * @param {string} appletCtx.action.app - Application which using as action
+     * @param {string} appletCtx.action.name - Name of the application action
+     * @param {Object} appletCtx.action.args - Action specific arguments
+     */
     add(appletCtx) {
         // TODO @imblowfish: Реализовать генерацию имени апплета
         const name = "Some generated applet name";
@@ -85,6 +113,12 @@ class AppletsManager {
         this.__applets.set(uuidV4(), applet);
     }
 
+    /**
+     * Returns applet properties based on uuid
+     * 
+     * @param {string} appletUUID 
+     * @returns {AppletProperties} 
+     */
     get(appletUUID) {
         if (!this.__applets.has(appletUUID)) {
             return {};
@@ -96,6 +130,11 @@ class AppletsManager {
         };
     }
 
+    /**
+     * Delete applet based on the uuid
+     * 
+     * @param {string} appletUUID 
+     */
     delete(appletUUID) {
         if (!this.__applets.has(appletUUID)) {
             return;
