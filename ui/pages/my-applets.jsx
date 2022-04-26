@@ -31,7 +31,7 @@ const AppletCard = (props) => {
     const widthCard = 400;
     var heightCard = 0;
     if (widthCard/lenStr < 3){
-        heightCard = (lenStr - widthCard/3)/2 + widthCard/3;
+        heightCard = (lenStr - widthCard/3)/3 + widthCard/3;
     }
     else{
         heightCard = lenStr;
@@ -127,8 +127,9 @@ const AppletsList = () => {
 
     return (
         <Stack
-            direction="row"
+            direction="column"
             justifyContent="center"
+            alignItems = "center"
             padding={2}
             spacing={2}
         >
