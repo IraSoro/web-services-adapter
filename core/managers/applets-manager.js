@@ -71,13 +71,12 @@ export class AppletsManager {
     }
 
     add(appletCtx) {
-        const appletName = `On ${appletCtx.triggerName} ${JSON.stringify(appletCtx.triggerArgs)} in ${appletCtx.triggerAppName} `
-            + `${appletCtx.actionName} ${JSON.stringify(appletCtx.actionArgs)} in ${appletCtx.actionAppName}`;
-
-        const trigger = appsManager.getAppInstance(appletCtx.triggerAppName)
-            .createTrigger(appletCtx.triggerName, appletCtx.triggerArgs);
-        const action = appsManager.getAppInstance(appletCtx.actionAppName)
-            .createCommand(appletCtx.actionName, appletCtx.actionArgs);
+        // TODO @imblowfish: Реализовать генерацию имени апплета
+        const appletName = "Some generated applet name";
+        const trigger = appsManager.getAppInstance(appletCtx.trigger.app)
+            .createTrigger(appletCtx.trigger.name, appletCtx.trigger.args);
+        const action = appsManager.getAppInstance(appletCtx.action.app)
+            .createCommand(appletCtx.action.name, appletCtx.action.args);
         const applet = new Applet(trigger.getFn(), action.getFn());
         applet.launch();
         this.__applets.set(uuidV4(), {
