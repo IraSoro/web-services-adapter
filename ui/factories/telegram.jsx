@@ -47,7 +47,11 @@ const SendMessageAction = (props) => {
     }
 
     return (
-        <Stack justifyContent="center" alignItems="center" spacing={0.5} mt={2}>
+        <Stack
+            alignItems="center"
+            spacing={0.5}
+            mt={2}
+        >
             <Select
                 sx={{ width: "20%" }}
                 label="Chat"
@@ -117,7 +121,11 @@ const ReceiveMessageTrigger = (props) => {
     }
 
     return (
-        <Stack justifyContent="center" alignItems="center" spacing={0.5} mt={2}>
+        <Stack
+            alignItems="center"
+            spacing={0.5}
+            mt={2}
+        >
             <Select
                 sx={{ width: "20%" }}
                 label="Chat"
@@ -127,7 +135,7 @@ const ReceiveMessageTrigger = (props) => {
                 {chatItems}
             </Select>
             <TextField
-                sx={{ width: "20%" }} 
+                sx={{ width: "20%" }}
                 label="On receive..."
                 multiline
                 onChange={(event) => setMessage(event.target.value)}
