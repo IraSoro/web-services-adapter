@@ -16,20 +16,24 @@ class ReceiveMessage extends Command {
         super(ctx, args);
     }
 
-    exec() {
-        const checker = (botCtx) => {
-            if (botCtx.message.chat.id == this._args.chatID
-                && botCtx.message.text == this._args.message) {
-                return true;
-            }
-            return false;
-        };
-        return new Promise((resolve) => {
-            receivedMessagesQueue.push({
-                resolver: resolve,
-                checker: (botCtx) => checker(botCtx)
+    getFn() {
+        return async (cb) => {
+            const checker = (botCtx) => {
+                if (botCtx.message.chat.id == this._args.chatID
+                    && botCtx.message.text == this._args.message) {
+                    return true;
+                }
+                return false;
+            };
+            const p = new Promise((resolve) => {
+                receivedMessagesQueue.push({
+                    resolver: resolve,
+                    checker: (botCtx) => checker(botCtx)
+                });
             });
-        });
+            const result = await p;
+            cb(result);
+        };
     }
 }
 
@@ -38,9 +42,12 @@ class SendMessage extends Command {
         super(ctx, args);
     }
 
-    async exec() {
-        const bot = new Telegraf(this._ctx.token);
-        return bot.telegram.sendMessage(this._args.chatID, this._args.message);
+    getFn() {
+        return async (cb) => {
+            const bot = new Telegraf(this._ctx.token);
+            const res = await bot.telegram.sendMessage(this._args.chatID, this._args.message);
+            cb(res);
+        };
     }
 }
 

@@ -4,6 +4,13 @@ import { appsManager } from "../core/managers/apps-manager.js";
 import { appletsManager } from "../core/managers/applets-manager.js";
 
 
+/* TODO @imblowfish: В качестве ответа сейчас приходит абсолютно ничего не говорящее
+ * {
+ *    "res": "Success"
+ * }
+ * Нужно это поправить и возвращать "говорящий" результат
+ */
+
 const createAppsRouter = () => {
     const router = express.Router();
 
@@ -67,9 +74,10 @@ const createAppletsRouter = () => {
     });
 
     router.post("/:appletID", (req, res) => {
-        const appletID = req.params.appletID;
-        const params = req.body;
-        appletsManager.update(appletID, params);
+        // TODO @imblowfish: Implement me...
+        // const appletID = req.params.appletID;
+        // const params = req.body;
+        // appletsManager.update(appletID, params);
         res.json({
             res: "Success"
         });

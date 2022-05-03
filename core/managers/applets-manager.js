@@ -1,65 +1,64 @@
+import { v4 as uuidV4 } from "uuid";
+
 import { appsManager } from "./apps-manager.js";
 
 
-/* FIXME @imblowfish: Совершенно неправильно сделана работа с промисами, нет возможности отменять их т.д.
-В дальнейшем нужно будет заменить на какой-нибудь готовый jobs manager  */
-
-class AppletExecutor {
-    constructor(appletCtx) {
-        const triggerApp = appsManager.getAppInstance(appletCtx.triggerAppName);
-        const actionApp = appsManager.getAppInstance(appletCtx.actionAppName);
-
-        this.__trigger = triggerApp.createTrigger(appletCtx.triggerName,
-            appletCtx.triggerArgs);
-        this.__action = actionApp.createCommand(appletCtx.actionName,
-            appletCtx.actionArgs);
-
-        this.__error = "";
-        this.__count = 0;
-
-        this.__rejector = null;
+class Applet {
+    /**
+     * @param {string} name 
+     * @param {Command} trigger 
+     * @param {Command} action 
+     */
+    constructor(name, trigger, action) {
+        // TODO @imblowfish: Реализовать счетчик выполнения апплета
+        // TODO @imblowfish: Реализовать включение/отключение апплета
+        this.__name = name;
+        this.__isCancelled = false;
+        this.__statesPromises = [
+            () => {
+                return new Promise((resolve, reject) => {
+                    trigger(this.__createCallback(resolve, reject));
+                });
+            },
+            () => {
+                return new Promise((resolve, reject) => {
+                    action(this.__createCallback(resolve, reject));
+                });
+            }
+        ];
     }
 
-    get count() {
-        return this.__count;
+    __createCallback(resolve, reject) {
+        return (res, err) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(res);
+        };
     }
 
-    get error() {
-        return this.__error;
-    }
-
-    cancel() {
-        if (this.__rejector) {
-            this.__rejector("Applet canceled");
-            this.__rejector = null;
-        }
+    get name() {
+        return this.__name;
     }
 
     async launch() {
-        new Promise((resolve, reject) => {
-            this.__rejector = reject;
+        this.__isCancelled = false;
+        for (const getStatePromise of this.__statesPromises) {
+            if (this.__isCancelled) {
+                return Promise.resolve("Applet was cancelled");
+            }
+            try {
+                await getStatePromise();
+            } catch (err) {
+                return Promise.reject(err);
+            }
+        }
+        setTimeout(() => this.launch());
+        return Promise.resolve("Success");
+    }
 
-            const exec = async () => {
-                try {
-                    await this.__trigger.exec();
-                    await this.__action.exec();
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                }
-            };
-
-            exec();
-        })
-            .then(() => {
-                this.__count++;
-                setTimeout(() => this.launch());
-            })
-            .catch((err) => {
-                if (err != "Applet canceled") {
-                    this.__error = JSON.stringify(err);
-                }
-            });
+    cancel() {
+        this.__isCancelled = true;
     }
 }
 
@@ -68,67 +67,80 @@ class AppletsManager {
         this.__applets = new Map();
     }
 
-    __generateAppletID() {
-        return this.__applets.size
-            ? (Math.max(...this.__applets.keys()) + 1).toString()
-            : "0";
-    }
+    /**
+     * @typedef AppletProperties
+     * @property {string} uuid
+     * @property {string} name
+     */
 
-    __generateAppletName(appletCtx) {
-        return `On ${appletCtx.triggerName} ${JSON.stringify(appletCtx.triggerArgs)} in ${appletCtx.triggerAppName} `
-            + `${appletCtx.actionName} ${JSON.stringify(appletCtx.actionArgs)} in ${appletCtx.actionAppName}`;
-    }
-
+    /**
+     * @returns {Array.<AppletProperties>}
+     */
     get applets() {
-        const res = {};
-        for (const [id, applet] of this.__applets) {
-            res[id] = {
-                name: applet.name,
-                active: applet.active,
-                count: applet.executor.count
-            };
-            if (applet.executor.error) {
-                res[id].error = applet.executor.error;
-            }
+        const applets = [];
+        for (const [uuid, applet] of this.__applets) {
+            applets.push({
+                uuid: uuid,
+                name: applet.name
+            });
         }
-        return res;
+        return applets;
     }
 
+    /**
+     * Creates new trigger, launch it and add in the applets list
+     * 
+     * @param {Object} appletCtx - Context with applet properties
+     * @param {Object} appletCtx.trigger - Trigger properties
+     * @param {string} appletCtx.trigger.app - Application which using as trigger
+     * @param {string} appletCtx.trigger.name - Name of the application trigger
+     * @param {Object} appletCtx.trigger.args - Trigger specific arguments
+     * 
+     * @param {Object} appletCtx.action - Action properties
+     * @param {string} appletCtx.action.app - Application which using as action
+     * @param {string} appletCtx.action.name - Name of the application action
+     * @param {Object} appletCtx.action.args - Action specific arguments
+     */
     add(appletCtx) {
-        const newAppletID = this.__generateAppletID();
-        this.__applets.set(newAppletID, {
-            ctx: appletCtx,
-            executor: new AppletExecutor(appletCtx),
-            name: this.__generateAppletName(appletCtx),
-            active: true
-        });
-        this.__applets.get(newAppletID).executor.launch();
+        // TODO @imblowfish: Реализовать генерацию имени апплета
+        const name = "Some generated applet name";
+        const trigger = appsManager.getAppInstance(appletCtx.trigger.app)
+            .createTrigger(appletCtx.trigger.name, appletCtx.trigger.args);
+        const action = appsManager.getAppInstance(appletCtx.action.app)
+            .createCommand(appletCtx.action.name, appletCtx.action.args);
+        const applet = new Applet(name, trigger.getFn(), action.getFn());
+        applet.launch();
+        this.__applets.set(uuidV4(), applet);
     }
 
-    get(appletID) {
-        return this.applets[appletID];
+    /**
+     * Returns applet properties based on uuid
+     * 
+     * @param {string} appletUUID 
+     * @returns {AppletProperties} 
+     */
+    get(appletUUID) {
+        if (!this.__applets.has(appletUUID)) {
+            return {};
+        }
+        const applet = this.__applets.get(appletUUID);
+        return {
+            uuid: appletUUID,
+            name: applet.name
+        };
     }
 
-    delete(appletID) {
-        this.__applets.delete(appletID);
-    }
-
-    update(appletID, params) {
-        if (!this.__applets.has(appletID)) {
+    /**
+     * Delete applet based on the uuid
+     * 
+     * @param {string} appletUUID 
+     */
+    delete(appletUUID) {
+        if (!this.__applets.has(appletUUID)) {
             return;
         }
-        const applet = this.__applets.get(appletID);
-
-        if (typeof params.active !== "undefined") {
-            if (applet.active && !params.active) {
-                applet.executor.cancel();
-                applet.active = false;
-            }
-            if (!applet.active && params.active) {
-                applet.executor.launch();
-                applet.active = true;
-            }
-        }
+        this.__applets.get(appletUUID).cancel();
+        this.__applets.delete(appletUUID);
     }
 }
 

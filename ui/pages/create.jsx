@@ -24,13 +24,16 @@ import {
 
 
 let applet = {
-    triggerAppName: "",
-    triggerName: "",
-    triggerArgs: {},
-
-    actionAppName: "",
-    actionName: "",
-    actionArgs: {}
+    trigger: {
+        app: "",
+        name: "",
+        args: {}
+    },
+    action: {
+        app: "",
+        name: "",
+        args: {}
+    }
 };
 
 
@@ -40,8 +43,8 @@ const ActionTriggerSelector = (props) => {
 
     useEffect(() => {
         const appName = props.triggerMode
-            ? applet.triggerAppName
-            : applet.actionAppName;
+            ? applet.trigger.app
+            : applet.action.app;
         fetch(`/api/v1/apps/${appName}`)
             .then((resp) => resp.json())
             .then((app) => props.triggerMode
@@ -82,16 +85,16 @@ const FieldsCompleter = (props) => {
     if (props.triggerMode) {
         return (
             <AppFactory
-                app={applet.triggerAppName}
-                trigger={applet.triggerName}
+                app={applet.trigger.app}
+                trigger={applet.trigger.name}
                 onDone={props.onComplete}
             />
         );
     }
     return (
         <AppFactory
-            app={applet.actionAppName}
-            action={applet.actionName}
+            app={applet.action.app}
+            action={applet.action.name}
             onDone={props.onComplete}
         />
     );
@@ -109,7 +112,7 @@ const CreationFlow = () => {
                 <AppSelector
                     triggersOnly
                     onAppClick={(app) => {
-                        applet.triggerAppName = app;
+                        applet.trigger.app = app;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -121,7 +124,7 @@ const CreationFlow = () => {
                 <ActionTriggerSelector
                     triggerMode
                     onSelect={(trigger) => {
-                        applet.triggerName = trigger;
+                        applet.trigger.name = trigger;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -133,7 +136,7 @@ const CreationFlow = () => {
                 <FieldsCompleter
                     triggerMode
                     onComplete={(args) => {
-                        applet.triggerArgs = args;
+                        applet.trigger.args = args;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -146,7 +149,7 @@ const CreationFlow = () => {
                 <AppSelector
                     actionsOnly
                     onAppClick={(app) => {
-                        applet.actionAppName = app;
+                        applet.action.app = app;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -158,7 +161,7 @@ const CreationFlow = () => {
                 <ActionTriggerSelector
                     actionMode
                     onSelect={(action) => {
-                        applet.actionName = action;
+                        applet.action.name = action;
                         setActiveStep((step) => step + 1);
                     }}
                 />
@@ -170,7 +173,7 @@ const CreationFlow = () => {
                 <FieldsCompleter
                     actionMode
                     onComplete={(args) => {
-                        applet.actionArgs = args;
+                        applet.action.args = args;
                         // TODO @imblowfish: Реализовать отправку на сервер
                         fetch("/api/v1/applets", {
                             method: "POST",
@@ -208,7 +211,18 @@ const CreationFlow = () => {
 };
 
 export const Create = () => {
-    applet = {};
+    applet = {
+        trigger: {
+            app: "",
+            name: "",
+            args: {}
+        },
+        action: {
+            app: "",
+            name: "",
+            args: {}
+        }
+    };
 
     return (
         <PageWrapper>
