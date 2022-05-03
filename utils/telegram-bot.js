@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
-import { cfgManager } from "../core/managers/cfg-manager.js";
 import { createChannel } from "../utils/fastmq.js";
 import { getAppContext } from "../core/cfg.js";
 
