@@ -18,39 +18,25 @@ class ReceiveMessage extends Command {
 
     getFn() {
         return async (cb) => {
-            const checker = (botCtx) => {
-                if (botCtx.message.chat.id == this._args.chatID
-                    && botCtx.message.text == this._args.message) {
-                    return true;
-                }
-                return false;
-            };
-            const p = new Promise((resolve) => {
-                receivedMessagesQueue.push({
-                    resolver: resolve,
-                    checker: (botCtx) => checker(botCtx)
-                });
+            const p = new Promise((resolve, reject) => {
+                createChannel(`subscriber.${ReceiveMessage.counter++}`, "telegram-bot")
+                    .then((channel) => {
+                        channel.subscribe("message", (msg) => {
+                            if (msg.payload.chatID != this._args.chatID
+                                || msg.payload.text != this._args.message) {
+                                return;
+                            }
+                            channel.disconnect();
+                            resolve(msg);
+                        });
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
             });
             const result = await p;
             cb(result);
         };
-    exec() {
-        return new Promise((resolve, reject) => {
-            createChannel(`subscriber.${ReceiveMessage.counter++}`, "telegram-bot")
-                .then((channel) => {
-                    channel.subscribe("message", (msg) => {
-                        if (msg.payload.chatID != this._args.chatID
-                            || msg.payload.text != this._args.message) {
-                            return;
-                        }
-                        channel.disconnect();
-                        resolve(msg);
-                    });
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        });
     }
 }
 
