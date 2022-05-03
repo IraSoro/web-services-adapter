@@ -95,21 +95,23 @@ const AppletsList = () => {
     const appletCards = [];
     for (const applet of applets) {
         appletCards.push(
-            <AppletCard
-                key={applet.uuid}
-                id={applet.uuid}
-                onDeleteApplet={(id) => {
-                    fetch(`/api/v1/applets/${id}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Accept": "application/json"
-                        }
-                    })
-                        .then((resp) => resp.json())
-                        .then(() => setNeedUpdate(!needUpdate))
-                        .catch((err) => console.error(err));
-                }}
-            />
+            <Grid item xs={12}>
+                <AppletCard
+                    key={applet.uuid}
+                    id={applet.uuid}
+                    onDeleteApplet={(id) => {
+                        fetch(`/api/v1/applets/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        })
+                            .then((resp) => resp.json())
+                            .then(() => setNeedUpdate(!needUpdate))
+                            .catch((err) => console.error(err));
+                    }}
+                />
+            </Grid>
         );
     }
 
