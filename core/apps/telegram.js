@@ -49,11 +49,11 @@ export class Telegram extends App {
         super("Telegram");
 
         this._triggers = {
-            "ReceiveMessage": ReceiveMessage
+            "Receive Message": ReceiveMessage
         };
 
         this._commands = {
-            "SendMessage": SendMessage
+            "Send Message": SendMessage
         };
     }
 
