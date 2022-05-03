@@ -8,7 +8,8 @@ import {
     Stack,
     Switch,
     IconButton,
-    Typography
+    Typography,
+    Grid
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -26,19 +27,6 @@ const AppletCard = (props) => {
             .catch((err) => console.error(err));
     }, [needUpdate]);
 
-    var strName = String(applet.name);
-    var lenStr = strName.length;
-    const widthCard = 400;
-    var heightCard = 0;
-    if (widthCard/lenStr < 3){
-        heightCard = (lenStr - widthCard/3)/3 + widthCard/3;
-    }
-    else{
-        heightCard = lenStr;
-    }
-    heightCard = String(heightCard);
-    heightCard = heightCard + "px";
-
     return (
         <Paper
             sx={{
@@ -46,8 +34,6 @@ const AppletCard = (props) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "400px",
-                height: heightCard,
                 cursor: "pointer"
             }}
             variant="outlined"
@@ -107,34 +93,30 @@ const AppletsList = () => {
     const appletCards = [];
     for (const id of Object.keys(applets)) {
         appletCards.push(
-            <AppletCard
-                key={id}
-                id={id}
-                onDeleteApplet={(id) => {
-                    fetch(`/api/v1/applets/${id}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Accept": "application/json"
-                        }
-                    })
-                        .then((resp) => resp.json())
-                        .then(() => setNeedUpdate(!needUpdate))
-                        .catch((err) => console.error(err));
-                }}
-            />
+            <Grid item xs={12}>
+                <AppletCard
+                    key={id}
+                    id={id}
+                    onDeleteApplet={(id) => {
+                        fetch(`/api/v1/applets/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        })
+                            .then((resp) => resp.json())
+                            .then(() => setNeedUpdate(!needUpdate))
+                            .catch((err) => console.error(err));
+                    }}
+                />
+            </Grid>
         );
     }
 
     return (
-        <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems = "center"
-            padding={2}
-            spacing={2}
-        >
+        <Grid container spacing={3}>
             {appletCards}
-        </Stack>
+        </Grid>
     );
 };
 
