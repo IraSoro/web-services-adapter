@@ -47,8 +47,13 @@ const SendMessageAction = (props) => {
     }
 
     return (
-        <Stack sx={{ width: "200px" }}>
+        <Stack
+            alignItems="center"
+            spacing={0.5}
+            mt={2}
+        >
             <Select
+                sx={{ width: "20%" }}
                 label="Chat"
                 value={chats[0] ? chats[0].chatID : ""}
                 onChange={(event) => setChat(event.target.value)}
@@ -56,11 +61,13 @@ const SendMessageAction = (props) => {
                 {chatItems}
             </Select>
             <TextField
+                sx={{ width: "20%" }}
                 label="Send message..."
                 multiline
                 onChange={(event) => setMessage(event.target.value)}
             />
             <Button
+                sx={{ width: "20%" }}
                 variant="outlined"
                 onClick={() => {
                     if (isValidArguments()) {
@@ -114,8 +121,13 @@ const ReceiveMessageTrigger = (props) => {
     }
 
     return (
-        <Stack sx={{ width: "200px" }}>
+        <Stack
+            alignItems="center"
+            spacing={0.5}
+            mt={2}
+        >
             <Select
+                sx={{ width: "20%" }}
                 label="Chat"
                 value={chats[0] ? chats[0].chatID : ""}
                 onChange={(event) => setChat(event.target.value)}
@@ -123,11 +135,13 @@ const ReceiveMessageTrigger = (props) => {
                 {chatItems}
             </Select>
             <TextField
+                sx={{ width: "20%" }}
                 label="On receive..."
                 multiline
                 onChange={(event) => setMessage(event.target.value)}
             />
             <Button
+                sx={{ width: "20%" }}
                 variant="outlined"
                 onClick={() => {
                     if (isValidArguments()) {
