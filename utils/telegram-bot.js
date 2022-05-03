@@ -2,14 +2,15 @@ import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
 import { cfgManager } from "../core/managers/cfg-manager.js";
+import { createChannel } from "../utils/fastmq.js";
 
-export const receivedMessagesQueue = [];
 
 export class TelegramBot {
     constructor() {
         this.__ctx = cfgManager.getAppContext("Telegram");
         this.__token = this.__ctx["token"];
         this.__bot = new Telegraf(this.__token);
+        this.__channel = null;
 
         this.__setupCommands();
     }
@@ -47,15 +48,15 @@ export class TelegramBot {
         });
 
         this.__bot.on("message", (ctx) => {
-            for (const msg of receivedMessagesQueue) {
-                if (msg.checker(ctx)) {
-                    msg.resolver();
-                }
-            }
+            this.__channel?.publish("subscriber.*", "message", {
+                chatID: ctx.chat.id,
+                text: ctx.message.text
+            }, "json");
         });
     }
 
     async launch() {
+        this.__channel = await createChannel("publisher", "telegram-bot");
         await this.__bot.launch();
     }
 
