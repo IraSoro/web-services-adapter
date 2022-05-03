@@ -4,5 +4,6 @@ build/
 public/*.mjs
 public/*.txt
 
-cfg/config.json
-cfg/origin-config.json
+.config/common.json
+
+package-lock.json

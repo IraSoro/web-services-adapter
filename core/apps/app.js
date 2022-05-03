@@ -1,6 +1,5 @@
 import express from "express";
-
-import { cfgManager } from "../managers/cfg-manager.js";
+import { getAppContext } from "../cfg.js";
 
 
 export class UnknownCommandError extends Error {
@@ -62,7 +61,7 @@ export class App {
      */
     constructor(name) {
         this._name = name;
-        this._ctx = cfgManager.getAppContext(name);
+        this._ctx = getAppContext(name);
         this._commands = {};
         this._triggers = {};
     }
