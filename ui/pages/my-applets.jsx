@@ -95,7 +95,11 @@ const AppletsList = () => {
     const appletCards = [];
     for (const applet of applets) {
         appletCards.push(
-            <Grid item xs={12}>
+            <Grid
+                item
+                xs={12}
+                key={applet.uuid}
+            >
                 <AppletCard
                     key={applet.uuid}
                     id={applet.uuid}
