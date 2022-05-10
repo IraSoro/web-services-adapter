@@ -1,7 +1,9 @@
 import express from "express";
 
-import { appsManager } from "../core/managers/apps-manager.js";
-import { appletsManager } from "../core/managers/applets-manager.js";
+import {
+    ApplicationsManager,
+    AppletsManager
+} from "../core/managers.js";
 
 
 /* TODO @imblowfish: В качестве ответа сейчас приходит абсолютно ничего не говорящее
@@ -14,36 +16,32 @@ import { appletsManager } from "../core/managers/applets-manager.js";
 const createAppsRouter = () => {
     const router = express.Router();
 
-    router.get("/", (_, res) => {
-        res.json(appsManager.apps);
-    });
-
-    router.get("/search", (_, res) => {
-        return res.json(appsManager.apps);
+    router.get(["/", "/search"], (_, res) => {
+        res.json(ApplicationsManager.applications);
     });
 
     router.get("/:filter/search", (req, res) => {
         const pattern = new RegExp(`${req.params.filter}*`, "i");
-        const apps = appsManager.apps.filter((app) => pattern.test(app.name));
-        res.json(apps);
+        res.json(
+            ApplicationsManager.applications.filter((app) => pattern.test(app.name))
+        );
     });
 
     router.get("/:appName", (req, res) => {
-        const app = appsManager.getAppByName(req.params.appName);
-        if (app) {
-            res.json(app);
-        } else {
+        try {
+            res.json(ApplicationsManager.getApplicationByName(req.params.appName));
+        } catch {
             res.status(404).send();
         }
     });
 
     router.get("/:appName/icon", (req, res) => {
-        const app = appsManager.getAppByName(req.params.appName);
-        if (!app) {
+        try {
+            const app = ApplicationsManager.getApplicationByName(req.params.appName);
+            res.redirect(`/icons/${app.icon}`);
+        } catch {
             res.status(404).send();
-            return;
         }
-        res.redirect(`/icons/${app.icon}`);
     });
 
     return router;
@@ -53,11 +51,11 @@ const createAppletsRouter = () => {
     const router = express.Router();
 
     router.get("/", (_, res) => {
-        res.json(appletsManager.applets);
+        res.json(AppletsManager.applets);
     });
 
     router.post("/", (req, res) => {
-        appletsManager.add(req.body);
+        AppletsManager.add(req.body);
         res.json({
             res: "Success"
         });
@@ -65,7 +63,7 @@ const createAppletsRouter = () => {
 
     router.get("/:appletID", (req, res) => {
         const appletID = req.params.appletID;
-        const applet = appletsManager.get(appletID);
+        const applet = AppletsManager.get(appletID);
         if (!applet) {
             res.status(404).send();
             return;
@@ -84,7 +82,7 @@ const createAppletsRouter = () => {
     });
 
     router.delete("/:appletID", (req, res) => {
-        appletsManager.delete(req.params.appletID);
+        AppletsManager.delete(req.params.appletID);
         res.json({
             res: "Success"
         });
