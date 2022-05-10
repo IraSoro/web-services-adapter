@@ -18,10 +18,6 @@ class ReceiveMessage extends Trigger {
     getFn() {
         return async (cb) => {
             const p = new Promise((resolve, reject) => {
-                /* TODO @imblowfish: Нужно передавать в триггер через контекст
-                 * uuid апплета, чтобы можно было использовать уникальные идентификаторы
-                 * каналов
-                 */
                 createChannel(`subscriber.${this._uuid}`, "telegram-bot")
                     .then((channel) => {
                         channel.subscribe("message", (msg) => {
