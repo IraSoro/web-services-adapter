@@ -24,12 +24,22 @@ const ConnectButton = (props) => {
 
     useEffect(() => {
         fetch(`/api/v1/apps/${props.name}`)
+            .then((resp) => {
+                return resp.ok
+                    ? Promise.resolve(resp)
+                    : Promise.reject(resp);
+            })
             .then((resp) => resp.json())
             .then((app) => setConnection({
                 connected: app.connected,
                 authURL: app.authURL
             }))
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                if (err?.status == 404) {
+                    navigate("/NotFound");
+                } 
+                console.error(err);
+            });
     }, []);
 
     if (connection.connected) {
