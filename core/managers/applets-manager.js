@@ -103,7 +103,7 @@ class AppletsManager {
      */
     add(appletCtx) {
         // TODO @imblowfish: Реализовать генерацию имени апплета
-        const name = "Some generated applet name";
+        const name = "Applet #" + uuidV4();
         const trigger = appsManager.getAppInstance(appletCtx.trigger.app)
             .createTrigger(appletCtx.trigger.name, appletCtx.trigger.args);
         const action = appsManager.getAppInstance(appletCtx.action.app)
