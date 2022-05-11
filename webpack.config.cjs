@@ -1,4 +1,5 @@
 const path = require("path");
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
     devtool: "eval-source-map",
@@ -10,6 +11,19 @@ module.exports = {
     },
     resolve: {
         extensions: [".js", ".jsx"],
+    },
+    plugins: [
+        new ESLintPlugin({
+            extensions: [".js", ".jsx"],
+            useEslintrc: true
+        })
+    ],
+    watchOptions: {
+        ignored: [
+            "**/node_modules",
+            "./core/**",
+            "main.js"
+        ]
     },
     module: {
         rules: [
