@@ -49,7 +49,7 @@ const ActionTriggerSelector = (props) => {
             .then((resp) => resp.json())
             .then((app) => props.triggerMode
                 ? setTriggers(app.triggers)
-                : setActions(app.commands))
+                : setActions(app.actions))
             .catch((err) => console.error(err));
     }, []);
 

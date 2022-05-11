@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
-import { createChannel } from "../utils/fastmq.js";
-import { getAppContext } from "../core/cfg.js";
+import { getAppContext } from "../cfg.js";
+import { createChannel } from "./fastmq.js";
 
 
 export class TelegramBot {

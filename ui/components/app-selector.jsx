@@ -56,7 +56,7 @@ const AppsList = (props) => {
                 if (props.triggersOnly) {
                     return setApps(apps.filter((app) => app.triggers.length > 0));
                 } else if (props.actionsOnly) {
-                    return setApps(apps.filter((app) => app.commands.length > 0));
+                    return setApps(apps.filter((app) => app.actions.length > 0));
                 }
                 return setApps(apps);
             })

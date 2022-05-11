@@ -2,28 +2,23 @@ import express from "express";
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { createChannel } from "../../utils/fastmq.js";
+import { createChannel } from "../utils/fastmq.js";
 import {
     App,
-    Command
+    Action,
+    Trigger
 } from "./app.js";
 
 
-class ReceiveMessage extends Command {
-    static counter = 0;
-
-    constructor(ctx, args) {
-        super(ctx, args);
+class ReceiveMessage extends Trigger {
+    constructor(uuid, ctx, args) {
+        super(uuid, ctx, args);
     }
 
     getFn() {
         return async (cb) => {
             const p = new Promise((resolve, reject) => {
-                /* TODO @imblowfish: Нужно передавать в триггер через контекст
-                 * uuid апплета, чтобы можно было использовать уникальные идентификаторы
-                 * каналов
-                 */
-                createChannel(`subscriber.${ReceiveMessage.counter++}`, "telegram-bot")
+                createChannel(`subscriber.${this._uuid}`, "telegram-bot")
                     .then((channel) => {
                         channel.subscribe("message", (msg) => {
                             if (msg.payload.chatID != this._args.chatID
@@ -44,9 +39,9 @@ class ReceiveMessage extends Command {
     }
 }
 
-class SendMessage extends Command {
-    constructor(ctx, args) {
-        super(ctx, args);
+class SendMessage extends Action {
+    constructor(uuid, ctx, args) {
+        super(uuid, ctx, args);
     }
 
     getFn() {
@@ -66,7 +61,7 @@ export class Telegram extends App {
             "Receive Message": ReceiveMessage
         };
 
-        this._commands = {
+        this._actions = {
             "Send Message": SendMessage
         };
     }
