@@ -102,6 +102,14 @@ class ApplicationsManager {
 /*
  * AppletsManager
  */
+class UnknownAppletUUIDError extends Error {
+    constructor(appletUUID) {
+        const msg = `There's unknown applet with uuid ${appletUUID}`;
+        super(msg);
+        this.name = "UnknownAppletUUIDError";
+    }
+}
+
 class Applet {
     /**
      * @param {string} name 
@@ -166,6 +174,13 @@ class AppletsManager {
         this.__applets = new Map();
     }
 
+    __getAppletProperties(uuid, applet) {
+        return {
+            uuid: uuid,
+            name: applet.name
+        };
+    }
+
     /**
      * @typedef AppletProperties
      * @property {string} uuid
@@ -178,10 +193,9 @@ class AppletsManager {
     get applets() {
         const applets = [];
         for (const [uuid, applet] of this.__applets) {
-            applets.push({
-                uuid: uuid,
-                name: applet.name
-            });
+            applets.push(
+                this.__getAppletProperties(uuid, applet)
+            );
         }
         return applets;
     }
@@ -219,13 +233,9 @@ class AppletsManager {
      */
     get(appletUUID) {
         if (!this.__applets.has(appletUUID)) {
-            return {};
+            throw new UnknownAppletUUIDError(appletUUID);
         }
-        const applet = this.__applets.get(appletUUID);
-        return {
-            uuid: appletUUID,
-            name: applet.name
-        };
+        return this.__getAppletProperties(appletUUID, this.__applets.get(appletUUID));
     }
 
     /**
@@ -235,7 +245,7 @@ class AppletsManager {
      */
     delete(appletUUID) {
         if (!this.__applets.has(appletUUID)) {
-            return;
+            throw new UnknownAppletUUIDError(appletUUID);
         }
         this.__applets.get(appletUUID).cancel();
         this.__applets.delete(appletUUID);
@@ -268,5 +278,7 @@ const utilsManager = new UtilsManager();
 export {
     applicationsManager as ApplicationsManager,
     appletsManager as AppletsManager,
-    utilsManager as UtilsManager
+    utilsManager as UtilsManager,
+    UnknownApplicationError,
+    UnknownAppletUUIDError
 };
