@@ -14,23 +14,6 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.module.css$/i,
-                exclude: [
-                    /node_modules/
-                ],
-                use: [
-                    "style-loader",
-                    {
-                        loader: "css-loader",
-                        options: {
-                            modules: {
-                                localIdentName: "[name]__[local]--[hash:base64:5]",
-                            }
-                        }
-                    }
-                ]
-            },
-            {
                 test: /\.jsx$/,
                 include: [
                     /ui/
