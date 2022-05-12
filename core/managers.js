@@ -2,7 +2,7 @@ import { v4 as uuidV4 } from "uuid";
 
 import { TelegramBot } from "./utils/telegram-bot.js";
 import { FastMQServer } from "./utils/fastmq.js";
-
+import { AppletsStorage } from "./cfg.js";
 import { Telegram } from "./apps/telegram.js";
 
 
@@ -179,6 +179,14 @@ class AppletsManager {
             uuid: uuid,
             name: applet.name
         };
+    load() {
+        for (const [uuid, appletCtx] of AppletsStorage) {
+            this.add({
+                uuid: uuid,
+                ...appletCtx
+            });
+            console.log(`Applet ${uuid} loaded`);
+        }
     }
 
     /**
@@ -215,12 +223,15 @@ class AppletsManager {
      * @param {Object} appletCtx.action.args - Action specific arguments
      */
     add(appletCtx) {
-        const uuid = uuidV4();
+        const uuid = appletCtx.uuid ?? uuidV4();
         const applet = new Applet(
             "Applet #" + uuid,
             applicationsManager.createTrigger(uuid, appletCtx.trigger).getFn(),
             applicationsManager.createAction(uuid, appletCtx.action).getFn()
         );
+        if (!appletCtx.uuid) {
+            AppletsStorage.set(uuid, appletCtx);
+        }
         applet.launch();
         this.__applets.set(uuid, applet);
     }
@@ -249,6 +260,7 @@ class AppletsManager {
         }
         this.__applets.get(appletUUID).cancel();
         this.__applets.delete(appletUUID);
+        AppletsStorage.delete(appletUUID);
     }
 }
 
