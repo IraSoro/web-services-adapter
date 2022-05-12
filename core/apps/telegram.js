@@ -2,7 +2,7 @@ import express from "express";
 import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
-import { createChannel } from "../utils/fastmq.js";
+import { createSubscriber } from "../utils/fastmq.js";
 import {
     App,
     Action,
@@ -18,7 +18,7 @@ class ReceiveMessage extends Trigger {
     getFn() {
         return async (cb) => {
             const p = new Promise((resolve, reject) => {
-                createChannel(`subscriber.${this._uuid}`, "telegram-bot")
+                createSubscriber("telegram-bot")
                     .then((channel) => {
                         channel.subscribe("message", (msg) => {
                             if (msg.payload.chatID != this._args.chatID
