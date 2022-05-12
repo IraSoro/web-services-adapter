@@ -22,7 +22,12 @@ const AppletCard = (props) => {
 
     useEffect(() => {
         fetch(`/api/v1/applets/${props.id}`)
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((applet) => setApplet(applet))
             .catch((err) => console.error(err));
     }, [needUpdate]);
@@ -85,9 +90,13 @@ const AppletsList = () => {
     const [applets, setApplets] = useState([]);
 
     useEffect(() => {
-        // TODO @imblowfish: Обращение к API для получения списка апплетов
         fetch("/api/v1/applets")
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((applets) => setApplets(applets))
             .catch((err) => console.error(err));
     }, [needUpdate]);
@@ -110,7 +119,11 @@ const AppletsList = () => {
                                 "Accept": "application/json"
                             }
                         })
-                            .then((resp) => resp.json())
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                                }
+                            })
                             .then(() => setNeedUpdate(!needUpdate))
                             .catch((err) => console.error(err));
                     }}
