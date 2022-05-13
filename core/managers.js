@@ -121,7 +121,7 @@ class Applet {
         // TODO @imblowfish: Реализовать включение/отключение апплета
         this.__name = name;
         this.__isCancelled = false;
-        this.__runningCounter = 0;
+        this.__launchCounter = 0;
         this.__statesPromises = [
             () => {
                 return new Promise((resolve, reject) => {
@@ -149,8 +149,8 @@ class Applet {
         return this.__name;
     }
 
-    get runningCounter() {
-        return this.__runningCounter;
+    get launchCounter() {
+        return this.__launchCounter;
     }
 
     async launch() {
@@ -165,7 +165,7 @@ class Applet {
                 return Promise.reject(err);
             }
         }
-        this.__runningCounter++;
+        this.__launchCounter++;
         setTimeout(() => this.launch());
         return Promise.resolve("Success");
     }

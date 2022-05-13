@@ -32,7 +32,9 @@ const AppletCard = (props) => {
             .catch((err) => console.error(err));
     }, [needUpdate]);
 
-    const infoApplet = applet.name + "\nWorked " + applet.counter + " times";
+    const runTimesInfo = applet.counter
+        ? `Run ${applet.counter} times`
+        : "Never run";
 
     return (
         <Paper
@@ -48,10 +50,14 @@ const AppletCard = (props) => {
             <Typography
                 variant="body2"
                 color="text.secondary"
-                component="pre"
-                align="center"
             >
-                {infoApplet}
+                {applet.name}
+            </Typography>
+            <Typography
+                variant="body2"
+                color="text.secondary"
+            >
+                {runTimesInfo}
             </Typography>
             <Stack
                 direction="row"
