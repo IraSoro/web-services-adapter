@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently --raw npm:dev:*",
     "dev:ui": "webpack --watch --mode=development --progress",
-    "dev:server": "nodemon --watch core/ --watch main.js --exec 'npm run check && node ./main.js'",
+    "dev:server": "nodemon --watch core/ --watch main.js --exec \"npm run check && node main.js\"",
     "start": "npm run test && npm run build && node ./main.js",
     "check": "eslint ./",
     "test": "mocha --parallel",
