@@ -183,7 +183,8 @@ class AppletsManager {
     __getAppletProperties(uuid, applet) {
         return {
             uuid: uuid,
-            name: applet.name
+            name: applet.name,
+            counter: applet.launchCounter
         };
     }
 
