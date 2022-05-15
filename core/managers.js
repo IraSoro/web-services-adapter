@@ -121,6 +121,7 @@ class Applet {
         // TODO @imblowfish: Реализовать включение/отключение апплета
         this.__name = name;
         this.__launchCounter = 0;
+        this.__isCancelled = false;
         this.__isActive = true;
         this.__statesPromises = [
             () => {
@@ -155,7 +156,9 @@ class Applet {
 
     set active(value) {
         if (!this.__isActive && value) {
-            this.launch();
+            if (this.__isCancelled) {
+                this.launch();
+            }
         }
         if (this.__isActive && !value) {
             this.cancel();
@@ -168,8 +171,10 @@ class Applet {
 
     async launch() {
         this.__isActive = true;
+        this.__isCancelled = false;
         for (const getStatePromise of this.__statesPromises) {
             if (!this.__isActive) {
+                this.__isCancelled = true;
                 return Promise.resolve("Applet was cancelled");
             }
             try {
