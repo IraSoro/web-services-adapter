@@ -120,7 +120,6 @@ class Applet {
         // TODO @imblowfish: Реализовать счетчик выполнения апплета
         // TODO @imblowfish: Реализовать включение/отключение апплета
         this.__name = name;
-        this.__isCancelled = false;
         this.__launchCounter = 0;
         this.__isActive = true;
         this.__statesPromises = [
