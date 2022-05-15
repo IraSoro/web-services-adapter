@@ -1,4 +1,5 @@
 import FastMQ from "fastmq";
+import { v4 as uuidV4 } from "uuid";
 
 // NOTE @imblowfish: https://github.com/arloliu/fastmq
 export class FastMQServer {
@@ -22,4 +23,8 @@ export function createChannel(channelName, serverName) {
                 reject(err);
             });
     });
+}
+
+export function createSubscriber(serverName) {
+    return createChannel(`subscriber.${uuidV4()}`, serverName);
 }

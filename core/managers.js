@@ -122,6 +122,7 @@ class Applet {
         this.__name = name;
         this.__isCancelled = false;
         this.__launchCounter = 0;
+        this.__isActive = true;
         this.__statesPromises = [
             () => {
                 return new Promise((resolve, reject) => {
@@ -153,10 +154,23 @@ class Applet {
         return this.__launchCounter;
     }
 
+    set active(value) {
+        if (!this.__isActive && value) {
+            this.launch();
+        }
+        if (this.__isActive && !value) {
+            this.cancel();
+        }
+    }
+
+    get active() {
+        return this.__isActive;
+    }
+
     async launch() {
-        this.__isCancelled = false;
+        this.__isActive = true;
         for (const getStatePromise of this.__statesPromises) {
-            if (this.__isCancelled) {
+            if (!this.__isActive) {
                 return Promise.resolve("Applet was cancelled");
             }
             try {
@@ -171,7 +185,7 @@ class Applet {
     }
 
     cancel() {
-        this.__isCancelled = true;
+        this.__isActive = false;
     }
 }
 
@@ -184,7 +198,8 @@ class AppletsManager {
         return {
             uuid: uuid,
             name: applet.name,
-            counter: applet.launchCounter
+            counter: applet.launchCounter,
+            active: applet.active
         };
     }
 
@@ -270,6 +285,16 @@ class AppletsManager {
         this.__applets.get(appletUUID).cancel();
         this.__applets.delete(appletUUID);
         AppletsStorage.delete(appletUUID);
+    }
+
+    update(appletUUID, appletParams) {
+        if (!this.__applets.has(appletUUID)) {
+            throw new Error(`Unknown applet uuid ${appletUUID}`);
+        }
+        const applet = this.__applets.get(appletUUID);
+        if (Object.prototype.hasOwnProperty.call(appletParams, "active")) {
+            applet.active = appletParams.active;
+        }
     }
 }
 

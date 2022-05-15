@@ -67,8 +67,6 @@ const AppletCard = (props) => {
                     color="primary"
                     checked={Boolean(applet.active)}
                     onChange={(event) => {
-                        // FIXME @imblowfish: Метод на стороне Backend был удален
-                        // реализовать
                         fetch(`/api/v1/applets/${props.id}`, {
                             method: "POST",
                             headers: {
@@ -79,7 +77,11 @@ const AppletCard = (props) => {
                                 active: event.target.checked
                             })
                         })
-                            .then((resp) => resp.json())
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                                }
+                            })
                             .then(() => setNeedUpdate(!needUpdate))
                             .catch((err) => console.error(err));
                     }}
