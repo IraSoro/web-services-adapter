@@ -4,10 +4,15 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "mocha --parallel --timeout 500000",
-    "start": "node ./main.js",
+    "dev": "concurrently --raw npm:dev:*",
+    "dev:ui": "webpack --watch --mode=development --progress",
+    "dev:server": "nodemon --watch core/ --watch main.js --exec \"npm run check && node main.js\"",
+    "start": "npm run test && npm run build && node ./main.js",
     "check": "eslint ./",
-    "build:dev": "npm run check && webpack --mode=development"
+    "test": "mocha --parallel",
+    "build": "webpack --progress --mode=production",
+    "start:legacy": "node ./main.js",
+    "build:legacy": "npm run check && webpack --mode=development --progress"
   },
   "author": "Irina Sorokina",
   "contributors": [
@@ -27,7 +32,6 @@
     "@mui/material": "^5.4.4",
     "babel-loader": "^8.2.3",
     "conf": "^10.1.2",
-    "css-loader": "^6.7.0",
     "eslint": "^8.8.0",
     "eslint-plugin-react": "^7.28.0",
     "express": "^4.17.2",
@@ -49,7 +53,10 @@
     "@types/express": "^4.17.13",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
-    "mocha": "^9.2.1"
+    "concurrently": "^7.1.0",
+    "eslint-webpack-plugin": "^3.1.1",
+    "mocha": "^9.2.1",
+    "nodemon": "^2.0.16"
   },
   "type": "module"
 }
