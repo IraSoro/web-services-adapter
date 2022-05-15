@@ -117,8 +117,6 @@ class Applet {
      * @param {Command} action 
      */
     constructor(name, trigger, action) {
-        // TODO @imblowfish: Реализовать счетчик выполнения апплета
-        // TODO @imblowfish: Реализовать включение/отключение апплета
         this.__name = name;
         this.__launchCounter = 0;
         this.__isCancelled = false;

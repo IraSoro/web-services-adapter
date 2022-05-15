@@ -179,7 +179,6 @@ const CreationFlow = () => {
                     actionMode
                     onComplete={(args) => {
                         applet.action.args = args;
-                        // TODO @imblowfish: Реализовать отправку на сервер
                         fetch("/api/v1/applets", {
                             method: "POST",
                             headers: {

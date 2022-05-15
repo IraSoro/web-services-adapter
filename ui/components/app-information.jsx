@@ -13,9 +13,6 @@ import {
 
 
 const ConnectButton = (props) => {
-    /* FIXME @imblowfish: После того, как нажали Connect
-     * и вошли в приложение кнопка не обновляется
-     */
     const navigate = useNavigate();
     const [connection, setConnection] = useState({
         connected: false,
