@@ -10,7 +10,9 @@
     "start": "npm run test && npm run build && node ./main.js",
     "check": "eslint ./",
     "test": "mocha --parallel",
-    "build": "webpack --progress --mode=production"
+    "build": "webpack --progress --mode=production",
+    "start:legacy": "node ./main.js",
+    "build:legacy": "npm run check && webpack --mode=development --progress"
   },
   "author": "Irina Sorokina",
   "contributors": [
