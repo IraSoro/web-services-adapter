@@ -5,6 +5,7 @@ import apiV1Router from "./api/v1-router.js";
 import redirectRouter from "./api/redirect-router.js";
 import {
     ApplicationsManager,
+    AppletsManager,
     UtilsManager
 } from "./core/managers.js";
 
@@ -22,8 +23,9 @@ app.use("/icons", express.static("./assets/icons"));
 ApplicationsManager.initializeExpressRouter(app);
 app.use("/api/v1/", apiV1Router());
 app.use(redirectRouter());
-// запуск утилит
-UtilsManager.launchAll();
+// запуск утилит и загрузка сохраненных апплетов
+UtilsManager.launchAll()
+    .then(() => AppletsManager.load());
 
 http.createServer(app).listen(port, host, () => {
     console.log("App server running at", host + ":" + port);
