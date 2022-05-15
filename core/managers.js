@@ -179,6 +179,8 @@ class AppletsManager {
             uuid: uuid,
             name: applet.name
         };
+    }
+
     load() {
         for (const [uuid, appletCtx] of AppletsStorage) {
             this.add({
