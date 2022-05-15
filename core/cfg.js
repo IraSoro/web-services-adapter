@@ -29,7 +29,7 @@ const cfg = new Conf({
     }
 });
 
-export function getAppContext(appName) {
+function getAppContext(appName) {
     if (!cfg.has(appName)) {
         throw new Error(`Cannot found ${appName} config`);
     }
@@ -43,3 +43,14 @@ export function getAppContext(appName) {
         }
     });
 }
+
+const appletsStorage = new Conf({
+    cwd: ".config",
+    configName: "applets"
+});
+
+
+export {
+    getAppContext,
+    appletsStorage as AppletsStorage
+};

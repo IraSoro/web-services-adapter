@@ -46,10 +46,15 @@ const ActionTriggerSelector = (props) => {
             ? applet.trigger.app
             : applet.action.app;
         fetch(`/api/v1/apps/${appName}`)
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((app) => props.triggerMode
                 ? setTriggers(app.triggers)
-                : setActions(app.commands))
+                : setActions(app.actions))
             .catch((err) => console.error(err));
     }, []);
 
@@ -174,7 +179,6 @@ const CreationFlow = () => {
                     actionMode
                     onComplete={(args) => {
                         applet.action.args = args;
-                        // TODO @imblowfish: Реализовать отправку на сервер
                         fetch("/api/v1/applets", {
                             method: "POST",
                             headers: {
@@ -183,7 +187,11 @@ const CreationFlow = () => {
                             },
                             body: JSON.stringify(applet)
                         })
-                            .then((resp) => resp.json())
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                                }
+                            })
                             .then(() => navigate("/"))
                             .catch((err) => console.error(err));
                     }}

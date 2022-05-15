@@ -51,12 +51,17 @@ const AppsList = (props) => {
 
     useEffect(() => {
         fetch(`/api/v1/apps/${props.filter ?? ""}/search`)
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((apps) => {
                 if (props.triggersOnly) {
                     return setApps(apps.filter((app) => app.triggers.length > 0));
                 } else if (props.actionsOnly) {
-                    return setApps(apps.filter((app) => app.commands.length > 0));
+                    return setApps(apps.filter((app) => app.actions.length > 0));
                 }
                 return setApps(apps);
             })
