@@ -46,7 +46,12 @@ const ActionTriggerSelector = (props) => {
             ? applet.trigger.app
             : applet.action.app;
         fetch(`/api/v1/apps/${appName}`)
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((app) => props.triggerMode
                 ? setTriggers(app.triggers)
                 : setActions(app.actions))
@@ -183,7 +188,11 @@ const CreationFlow = () => {
                             },
                             body: JSON.stringify(applet)
                         })
-                            .then((resp) => resp.json())
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                                }
+                            })
                             .then(() => navigate("/"))
                             .catch((err) => console.error(err));
                     }}

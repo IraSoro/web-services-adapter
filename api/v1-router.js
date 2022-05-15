@@ -2,36 +2,50 @@ import express from "express";
 
 import {
     ApplicationsManager,
-    AppletsManager
+    AppletsManager,
+    UnknownApplicationError,
+    UnknownAppletUUIDError
 } from "../core/managers.js";
 
-
-/* TODO @imblowfish: В качестве ответа сейчас приходит абсолютно ничего не говорящее
- * {
- *    "res": "Success"
- * }
- * Нужно это поправить и возвращать "говорящий" результат
- */
 
 const createAppsRouter = () => {
     const router = express.Router();
 
+    /* TODO @imblowfish: Мне не нравится, что тут дублируется поведение для /apps и apps/search
+     * нужно на стороне frontend проверять, если фильтр пустой, то обращаться к /apps, если не пустой, то к поиску приложения
+     */
     router.get(["/", "/search"], (_, res) => {
-        res.json(ApplicationsManager.applications);
+        try {
+            res.json(ApplicationsManager.applications);
+        } catch (err) {
+            res.status(500).send(err.message);
+        }
     });
 
+    /* TODO @imblowfish: Данный маршрут в принципе дублирует appName за исключением того, что appName не производит поиска по регулярке
+     * думаю, стоит убрать этот маршрут и оставить только appName с поиском, тогда можно будет избавиться от getAppByName в ApplicationsManager
+     * либо перенести поиск по регулярке в него
+     */
     router.get("/:filter/search", (req, res) => {
-        const pattern = new RegExp(`${req.params.filter}*`, "i");
-        res.json(
-            ApplicationsManager.applications.filter((app) => pattern.test(app.name))
-        );
+        try {
+            const pattern = new RegExp(`${req.params.filter}*`, "i");
+            res.json(
+                ApplicationsManager.applications.filter((app) => pattern.test(app.name))
+            );
+        } catch (err) {
+            res.status(500).send(err.message);
+        }
     });
 
     router.get("/:appName", (req, res) => {
         try {
             res.json(ApplicationsManager.getApplicationByName(req.params.appName));
-        } catch {
-            res.status(404).send();
+        } catch (err) {
+            if (err instanceof UnknownApplicationError) {
+                res.status(404).send(err.message);
+            } else {
+                res.status(500).send(err.message);
+            }
         }
     });
 
@@ -39,8 +53,12 @@ const createAppsRouter = () => {
         try {
             const app = ApplicationsManager.getApplicationByName(req.params.appName);
             res.redirect(`/icons/${app.icon}`);
-        } catch {
-            res.status(404).send();
+        } catch (err) {
+            if (err instanceof UnknownApplicationError) {
+                res.status(404).send();
+            } else {
+                res.status(500).send(err.message);
+            }
         }
     });
 
@@ -51,27 +69,36 @@ const createAppletsRouter = () => {
     const router = express.Router();
 
     router.get("/", (_, res) => {
-        res.json(AppletsManager.applets);
+        try {
+            res.json(AppletsManager.applets);
+        } catch (err) {
+            res.status(500).send(err.message);
+        }
     });
 
     router.post("/", (req, res) => {
-        AppletsManager.add(req.body);
-        res.json({
-            res: "Success"
-        });
-    });
-
-    router.get("/:appletID", (req, res) => {
-        const appletID = req.params.appletID;
-        const applet = AppletsManager.get(appletID);
-        if (!applet) {
-            res.status(404).send();
-            return;
+        try {
+            AppletsManager.add(req.body);
+            res.status(200).send();
+        } catch (err) {
+            res.status(500).send(err.message);
         }
-        res.json(applet);
     });
 
-    router.post("/:appletID", (req, res) => {
+    router.get("/:appletUUID", (req, res) => {
+        try {
+            const appletUUID = req.params.appletUUID;
+            res.json(AppletsManager.get(appletUUID));
+        } catch (err) {
+            if (err instanceof UnknownAppletUUIDError) {
+                res.status(404).send(err.message);
+            } else {
+                res.status(500).send(err.message);
+            }
+        }
+    });
+
+    router.post("/:appletUUID", (req, res) => {
         // TODO @imblowfish: Implement me...
         // const appletID = req.params.appletID;
         // const params = req.body;
@@ -81,11 +108,17 @@ const createAppletsRouter = () => {
         });
     });
 
-    router.delete("/:appletID", (req, res) => {
-        AppletsManager.delete(req.params.appletID);
-        res.json({
-            res: "Success"
-        });
+    router.delete("/:appletUUID", (req, res) => {
+        try {
+            AppletsManager.delete(req.params.appletUUID);
+            res.status(200).send();
+        } catch (err) {
+            if (err instanceof UnknownAppletUUIDError) {
+                res.status(404).send(err.message);
+            } else {
+                res.status(500).send(err.message);
+            }
+        }
     });
 
     return router;

@@ -29,7 +29,12 @@ const ConnectButton = (props) => {
                     ? Promise.resolve(resp)
                     : Promise.reject(resp);
             })
-            .then((resp) => resp.json())
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                }
+                return resp.json();
+            })
             .then((app) => setConnection({
                 connected: app.connected,
                 authURL: app.authURL
