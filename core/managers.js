@@ -154,6 +154,7 @@ class Applet {
 
     set active(value) {
         if (!this.__isActive && value) {
+            this.__isActive = true;
             if (this.__isCancelled) {
                 this.launch();
             }
@@ -168,7 +169,6 @@ class Applet {
     }
 
     async launch() {
-        this.__isActive = true;
         this.__isCancelled = false;
         for (const getStatePromise of this.__statesPromises) {
             if (!this.__isActive) {
