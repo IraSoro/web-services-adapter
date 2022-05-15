@@ -152,6 +152,8 @@ class Applet {
 
     get launchCounter() {
         return this.__launchCounter;
+    }
+
     set active(value) {
         if (!this.__isActive && value) {
             this.launch();
@@ -196,7 +198,8 @@ class AppletsManager {
         return {
             uuid: uuid,
             name: applet.name,
-            counter: applet.launchCounter
+            counter: applet.launchCounter,
+            active: applet.active
         };
     }
 

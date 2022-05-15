@@ -99,13 +99,12 @@ const createAppletsRouter = () => {
     });
 
     router.post("/:appletUUID", (req, res) => {
-        // TODO @imblowfish: Implement me...
-        // const appletID = req.params.appletID;
-        // const params = req.body;
-        // appletsManager.update(appletID, params);
-        res.json({
-            res: "Success"
-        });
+        try {
+            AppletsManager.update(req.params.appletUUID, req.body);
+            res.status(200).send();
+        } catch (err) {
+            res.status(500).send();
+        }
     });
 
     router.delete("/:appletUUID", (req, res) => {
