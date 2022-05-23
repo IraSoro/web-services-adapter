@@ -76,7 +76,7 @@ const AppletCard = (props) => {
             >
                 <Switch
                     color="primary"
-                    checked={Boolean(applet.active)}
+                    checked={Boolean(applet.isActive)}
                     onChange={(event) => {
                         fetch(`/api/v1/applets/${props.id}`, {
                             method: "POST",
@@ -86,7 +86,7 @@ const AppletCard = (props) => {
                                 "Content-Type": "application/json"
                             },
                             body: JSON.stringify({
-                                active: event.target.checked
+                                isActive: event.target.checked
                             })
                         })
                             .then((resp) => {

@@ -162,9 +162,11 @@ class AppletsManager {
     launch() {
         setInterval(() => {
             const inactiveApplets = Array.from(this.__applets.keys());
+
             for (const user of Users.find({})) {
                 for (const applet of user.applets) {
-                    inactiveApplets.filter((uuid) => uuid == applet.uuid);
+                    inactiveApplets.splice(inactiveApplets.indexOf(applet.uuid), 1);
+
                     if (!applet.isActive) {
                         this.__applets.get(applet.uuid)?.cancel();
                         this.__applets.delete(applet.uuid);
@@ -183,6 +185,7 @@ class AppletsManager {
                     this.__applets.get(applet.uuid)?.launch();
                 }
             }
+
             this.__applets.forEach((_, uuid) => {
                 if (inactiveApplets.includes(uuid)) {
                     this.__applets.get(uuid)?.cancel();
