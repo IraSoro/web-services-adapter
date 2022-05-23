@@ -21,7 +21,11 @@ const SendMessageAction = (props) => {
     };
 
     useEffect(() => {
-        fetch("/telegram/chats")
+        fetch("/telegram/chats", {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => resp.json())
             .then((chats) => setChats(chats))
             .catch((err) => console.error(err));
@@ -91,7 +95,11 @@ const ReceiveMessageTrigger = (props) => {
     };
 
     useEffect(() => {
-        fetch("/telegram/chats")
+        fetch("/telegram/chats", {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => resp.json())
             .then((chats) => setChats(chats))
             .catch((err) => console.error(err));

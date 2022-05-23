@@ -1,5 +1,5 @@
 import express from "express";
-import { getAppContext } from "../cfg.js";
+import { getConfig } from "../cfg.js";
 
 
 class UnknownActionError extends Error {
@@ -20,12 +20,10 @@ class UnknownTriggerError extends Error {
 
 class ActionOrTrigger {
     /**
-     * @param {string} uuid - Universally unique identifier
      * @param {Object} ctx Application context (API Tokens and etc.)
      * @param {Object} args Specific arguments
      */
-    constructor(uuid, ctx, args) {
-        this._uuid = uuid;
+    constructor(ctx, args) {
         this._ctx = ctx;
         this._args = args;
     }
@@ -63,7 +61,7 @@ class App {
      */
     constructor(name) {
         this._name = name;
-        this._ctx = getAppContext(name);
+        this._ctx = getConfig(name);
         this._actions = {};
         this._triggers = {};
     }
@@ -116,7 +114,6 @@ class App {
 
     /**
      * Creates service trigger
-     * @param {string} uuid - Universally unique identifier
      *
      * @param {Object} ctx - Context with trigger properties
      * @param {string} app - The name of the application whose trigger you want to create
@@ -125,16 +122,15 @@ class App {
      *
      * @returns {ActionOrTrigger}
      */
-    createTrigger(uuid, ctx) {
+    createTrigger(ctx) {
         if (Object.keys(this._triggers).includes(ctx.name)) {
-            return new this._triggers[ctx.name](uuid, this._ctx, ctx.args);
+            return new this._triggers[ctx.name](this._ctx, ctx.args);
         }
         throw new UnknownTriggerError(this._name, ctx.name);
     }
 
     /**
      * Creates service action
-     * @param {string} uuid - Universally unique identifier
      * 
      * @param {Object} ctx - Context with action properties
      * @param {string} app - The name of the application whose action you want to create
@@ -143,9 +139,9 @@ class App {
      * 
      * @returns {ActionOrTrigger}
      */
-    createAction(uuid, ctx) {
+    createAction(ctx) {
         if (Object.keys(this._actions).includes(ctx.name)) {
-            return new this._actions[ctx.name](uuid, this._ctx, ctx.args);
+            return new this._actions[ctx.name](this._ctx, ctx.args);
         }
         throw new UnknownActionError(this._name, ctx.name);
     }

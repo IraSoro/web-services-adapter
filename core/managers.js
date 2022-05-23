@@ -1,14 +1,9 @@
-import { v4 as uuidV4 } from "uuid";
-
 import { TelegramBot } from "./utils/telegram-bot.js";
 import { FastMQServer } from "./utils/fastmq.js";
-import { AppletsStorage } from "./cfg.js";
 import { Telegram } from "./apps/telegram.js";
 
+import { Users } from "./storages.js";
 
-/*
- * ApplicationsManager
- */
 class UnknownApplicationError extends Error {
     constructor(appName) {
         const msg = `There's unknown application ${appName}`;
@@ -63,9 +58,6 @@ class ApplicationsManager {
     }
 
     /**
-     * 
-     * @param {string} uuid - Universally unique identifier
-     * 
      * @param {Object} ctx - Context with trigger properties
      * @param {string} app - The name of the application whose trigger you want to create
      * @param {string} name - Name of the application trigger
@@ -73,17 +65,14 @@ class ApplicationsManager {
      * 
      * @returns {Trigger}
      */
-    createTrigger(uuid, ctx) {
+    createTrigger(ctx) {
         if (!this.__apps.has(ctx.app)) {
             throw new UnknownApplicationError(ctx.app);
         }
-        return this.__apps.get(ctx.app).createTrigger(uuid, ctx);
+        return this.__apps.get(ctx.app).createTrigger(ctx);
     }
 
     /**
-     * 
-     * @param {string} uuid - Universally unique identifier
-     * 
      * @param {Object} ctx - Context with action properties
      * @param {string} app - The name of the application whose action you want to create
      * @param {string} name - Name of the application action
@@ -91,45 +80,36 @@ class ApplicationsManager {
      * 
      * @returns {Action}
      */
-    createAction(uuid, ctx) {
+    createAction(ctx) {
         if (!this.__apps.has(ctx.app)) {
             throw new UnknownApplicationError(ctx.app);
         }
-        return this.__apps.get(ctx.app).createAction(uuid, ctx);
+        return this.__apps.get(ctx.app).createAction(ctx);
     }
 }
 
-/*
- * AppletsManager
- */
-class UnknownAppletUUIDError extends Error {
-    constructor(appletUUID) {
-        const msg = `There's unknown applet with uuid ${appletUUID}`;
-        super(msg);
-        this.name = "UnknownAppletUUIDError";
-    }
-}
 
 class Applet {
     /**
-     * @param {string} name 
      * @param {Command} trigger 
-     * @param {Command} action 
+     * @param {Command} action
+     * @param {AtAppletCompletionCallback} atCompletionCallback
      */
-    constructor(name, trigger, action) {
-        this.__name = name;
-        this.__launchCounter = 0;
+    constructor(trigger, action, atCompletionCallback) {
+        this.__atCompletionCallback = atCompletionCallback;
         this.__isCancelled = false;
         this.__isActive = true;
         this.__statesPromises = [
             () => {
+                const fn = trigger.getFn();
                 return new Promise((resolve, reject) => {
-                    trigger(this.__createCallback(resolve, reject));
+                    fn(this.__createCallback(resolve, reject));
                 });
             },
             () => {
+                const fn = action.getFn();
                 return new Promise((resolve, reject) => {
-                    action(this.__createCallback(resolve, reject));
+                    fn(this.__createCallback(resolve, reject));
                 });
             }
         ];
@@ -144,28 +124,11 @@ class Applet {
         };
     }
 
-    get name() {
-        return this.__name;
-    }
-
-    get launchCounter() {
-        return this.__launchCounter;
-    }
-
     set active(value) {
-        if (!this.__isActive && value) {
-            this.__isActive = true;
-            if (this.__isCancelled) {
-                this.launch();
-            }
+        this.__isActive = value;
+        if (this.__isActive && this.__isCancelled) {
+            this.launch();
         }
-        if (this.__isActive && !value) {
-            this.cancel();
-        }
-    }
-
-    get active() {
-        return this.__isActive;
     }
 
     async launch() {
@@ -181,13 +144,13 @@ class Applet {
                 return Promise.reject(err);
             }
         }
-        this.__launchCounter++;
+        this.__atCompletionCallback();
         setTimeout(() => this.launch());
         return Promise.resolve("Success");
     }
 
     cancel() {
-        this.__isActive = false;
+        this.active = false;
     }
 }
 
@@ -196,113 +159,44 @@ class AppletsManager {
         this.__applets = new Map();
     }
 
-    __getAppletProperties(uuid, applet) {
-        return {
-            uuid: uuid,
-            name: applet.name,
-            counter: applet.launchCounter,
-            active: applet.active
-        };
-    }
+    launch() {
+        setInterval(() => {
+            const inactiveApplets = Array.from(this.__applets.keys());
 
-    load() {
-        for (const [uuid, appletCtx] of AppletsStorage) {
-            this.add({
-                uuid: uuid,
-                ...appletCtx
+            for (const user of Users.find({})) {
+                for (const applet of user.applets) {
+                    inactiveApplets.splice(inactiveApplets.indexOf(applet.uuid), 1);
+
+                    if (!applet.isActive) {
+                        this.__applets.get(applet.uuid)?.cancel();
+                        this.__applets.delete(applet.uuid);
+                        continue;
+                    }
+                    if (this.__applets.has(applet.uuid)) {
+                        continue;
+                    }
+                    this.__applets.set(applet.uuid, new Applet(
+                        applicationsManager.createTrigger(applet.trigger),
+                        applicationsManager.createAction(applet.action),
+                        () => {
+                            applet.counter++;
+                        }
+                    ));
+                    this.__applets.get(applet.uuid)?.launch();
+                }
+            }
+
+            this.__applets.forEach((_, uuid) => {
+                if (inactiveApplets.includes(uuid)) {
+                    this.__applets.get(uuid)?.cancel();
+                    this.__applets.delete(uuid);
+                }
             });
-            console.log(`Applet ${uuid} loaded`);
-        }
-    }
-
-    /**
-     * @typedef AppletProperties
-     * @property {string} uuid
-     * @property {string} name
-     */
-
-    /**
-     * @returns {Array.<AppletProperties>}
-     */
-    get applets() {
-        const applets = [];
-        for (const [uuid, applet] of this.__applets) {
-            applets.push(
-                this.__getAppletProperties(uuid, applet)
-            );
-        }
-        return applets;
-    }
-
-    /**
-     * Creates new trigger, launch it and add in the applets list
-     * 
-     * @param {Object} appletCtx - Context with applet properties
-     * @param {Object} appletCtx.trigger - Trigger properties
-     * @param {string} appletCtx.trigger.app - Application which using as trigger
-     * @param {string} appletCtx.trigger.name - Name of the application trigger
-     * @param {Object} appletCtx.trigger.args - Trigger specific arguments
-     * 
-     * @param {Object} appletCtx.action - Action properties
-     * @param {string} appletCtx.action.app - Application which using as action
-     * @param {string} appletCtx.action.name - Name of the application action
-     * @param {Object} appletCtx.action.args - Action specific arguments
-     */
-    add(appletCtx) {
-        const uuid = appletCtx.uuid ?? uuidV4();
-        const applet = new Applet(
-            "Applet #" + uuid,
-            applicationsManager.createTrigger(uuid, appletCtx.trigger).getFn(),
-            applicationsManager.createAction(uuid, appletCtx.action).getFn()
-        );
-        if (!appletCtx.uuid) {
-            AppletsStorage.set(uuid, appletCtx);
-        }
-        applet.launch();
-        this.__applets.set(uuid, applet);
-    }
-
-    /**
-     * Returns applet properties based on uuid
-     * 
-     * @param {string} appletUUID 
-     * @returns {AppletProperties} 
-     */
-    get(appletUUID) {
-        if (!this.__applets.has(appletUUID)) {
-            throw new UnknownAppletUUIDError(appletUUID);
-        }
-        return this.__getAppletProperties(appletUUID, this.__applets.get(appletUUID));
-    }
-
-    /**
-     * Delete applet based on the uuid
-     * 
-     * @param {string} appletUUID 
-     */
-    delete(appletUUID) {
-        if (!this.__applets.has(appletUUID)) {
-            throw new UnknownAppletUUIDError(appletUUID);
-        }
-        this.__applets.get(appletUUID).cancel();
-        this.__applets.delete(appletUUID);
-        AppletsStorage.delete(appletUUID);
-    }
-
-    update(appletUUID, appletParams) {
-        if (!this.__applets.has(appletUUID)) {
-            throw new Error(`Unknown applet uuid ${appletUUID}`);
-        }
-        const applet = this.__applets.get(appletUUID);
-        if (Object.prototype.hasOwnProperty.call(appletParams, "active")) {
-            applet.active = appletParams.active;
-        }
+        }, 1000);
     }
 }
 
-/*
- * UtilsManager
- */
+
 class UtilsManager {
     constructor() {
         this.__utils = new Map();
@@ -310,7 +204,7 @@ class UtilsManager {
         this.__utils.set("Telegram Bot", new TelegramBot());
     }
 
-    async launchAll() {
+    async launch() {
         for (const [name, util] of this.__utils.entries()) {
             console.log("Launch util", name);
             await util.launch();
@@ -323,10 +217,11 @@ const applicationsManager = new ApplicationsManager();
 const appletsManager = new AppletsManager();
 const utilsManager = new UtilsManager();
 
+await utilsManager.launch();
+appletsManager.launch();
+
 export {
     applicationsManager as ApplicationsManager,
     appletsManager as AppletsManager,
-    utilsManager as UtilsManager,
-    UnknownApplicationError,
-    UnknownAppletUUIDError
+    UnknownApplicationError
 };

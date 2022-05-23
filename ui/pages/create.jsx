@@ -38,6 +38,7 @@ let applet = {
 
 
 const ActionTriggerSelector = (props) => {
+    const navigate = useNavigate();
     const [triggers, setTriggers] = useState([]);
     const [actions, setActions] = useState([]);
 
@@ -45,17 +46,26 @@ const ActionTriggerSelector = (props) => {
         const appName = props.triggerMode
             ? applet.trigger.app
             : applet.action.app;
-        fetch(`/api/v1/apps/${appName}`)
+        fetch(`/api/v1/apps/${appName}`, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => {
                 if (!resp.ok) {
-                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                    throw new Error(resp.status);
                 }
                 return resp.json();
             })
             .then((app) => props.triggerMode
                 ? setTriggers(app.triggers)
                 : setActions(app.actions))
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                if (err.message == 401) {
+                    navigate("/signIn");
+                }
+                console.error(err);
+            });
     }, []);
 
     const selectedArr = props.triggerMode
@@ -183,17 +193,23 @@ const CreationFlow = () => {
                             method: "POST",
                             headers: {
                                 "Accept": "application/json",
+                                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`,
                                 "Content-Type": "application/json"
                             },
                             body: JSON.stringify(applet)
                         })
                             .then((resp) => {
                                 if (!resp.ok) {
-                                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                                    throw new Error(resp.status);
                                 }
                             })
                             .then(() => navigate("/"))
-                            .catch((err) => console.error(err));
+                            .catch((err) => {
+                                if (err.message == 401) {
+                                    navigate("/signIn");
+                                }
+                                console.error(err);
+                            });
                     }}
                 />
             )

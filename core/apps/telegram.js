@@ -11,8 +11,8 @@ import {
 
 
 class ReceiveMessage extends Trigger {
-    constructor(uuid, ctx, args) {
-        super(uuid, ctx, args);
+    constructor(ctx, args) {
+        super(ctx, args);
     }
 
     getFn() {
@@ -40,8 +40,8 @@ class ReceiveMessage extends Trigger {
 }
 
 class SendMessage extends Action {
-    constructor(uuid, ctx, args) {
-        super(uuid, ctx, args);
+    constructor(ctx, args) {
+        super(ctx, args);
     }
 
     getFn() {

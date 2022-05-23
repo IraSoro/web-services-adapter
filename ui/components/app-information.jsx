@@ -20,7 +20,11 @@ const ConnectButton = (props) => {
     });
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.name}`)
+        fetch(`/api/v1/apps/${props.name}`, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => {
                 return resp.ok
                     ? Promise.resolve(resp)
@@ -28,7 +32,7 @@ const ConnectButton = (props) => {
             })
             .then((resp) => {
                 if (!resp.ok) {
-                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                    throw new Error(resp.status);
                 }
                 return resp.json();
             })
@@ -37,9 +41,11 @@ const ConnectButton = (props) => {
                 authURL: app.authURL
             }))
             .catch((err) => {
-                if (err?.status == 404) {
+                if (err.message == 404) {
                     navigate("/NotFound");
-                } 
+                } else if (err.message == 401) {
+                    navigate("/signIn");
+                }
                 console.error(err);
             });
     }, []);
@@ -65,6 +71,25 @@ const ConnectButton = (props) => {
 };
 
 export const AppInformation = (props) => {
+    const [iconPath, setIconPath] = useState("");
+
+    useEffect(() => {
+        fetch(`/api/v1/apps/${props.name}`, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(resp.status);
+                }
+                return resp.json();
+            })
+            .then((json) => {
+                setIconPath(`/icons/${json.icon}`);
+            });
+    }, []);
+
     return (
         <Box
             sx={{
@@ -76,7 +101,7 @@ export const AppInformation = (props) => {
         >
             <Avatar
                 variant="square"
-                src={`/api/v1/apps/${props.name}/icon`}
+                src={iconPath}
             />
             <ConnectButton name={props.name} />
         </Box>
