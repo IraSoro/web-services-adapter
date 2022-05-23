@@ -24,19 +24,24 @@ const AppCard = (props) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "150px",
-                height: "150px",
+                width: "280px",
+                height: "280px",
                 cursor: "pointer"
             }}
             variant="outlined"
             onClick={() => props.onClick(props.name)}
         >
             <Avatar
+                sx={{
+                    width: "240px",
+                    height: "240px"
+                }}
                 variant="square"
                 src={`/icons/${props.icon}`}
             />
             <Typography
-                variant="body2"
+                component="h1"
+                variant="h5"
                 color="text.secondary"
             >
                 {props.name}

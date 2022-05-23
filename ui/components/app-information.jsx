@@ -100,6 +100,10 @@ export const AppInformation = (props) => {
             }}
         >
             <Avatar
+                sx={{
+                    width: "240px",
+                    height: "240px"
+                }}
                 variant="square"
                 src={iconPath}
             />
