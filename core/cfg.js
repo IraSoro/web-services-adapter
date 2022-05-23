@@ -33,6 +33,7 @@ const cfg = new Conf({
             }
         }
     },
+    // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе
     migrations: {
         "0.1.1": (store) => {
             store.set("Auth", {
