@@ -50,10 +50,14 @@ const AppsList = (props) => {
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.filter ?? ""}/search`)
+        fetch(`/api/v1/apps/${props.filter ?? ""}/search`, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => {
                 if (!resp.ok) {
-                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                    throw new Error(resp.status);
                 }
                 return resp.json();
             })
@@ -65,7 +69,9 @@ const AppsList = (props) => {
                 }
                 return setApps(apps);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                console.error(err);
+            });
     }, [props.filter]);
 
     const appCards = apps.map((app) => {

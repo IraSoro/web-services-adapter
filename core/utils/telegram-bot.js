@@ -1,13 +1,13 @@
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
-import { getAppContext } from "../cfg.js";
+import { getConfig } from "../cfg.js";
 import { createChannel } from "./fastmq.js";
 
 
 export class TelegramBot {
     constructor() {
-        this.__ctx = getAppContext("Telegram");
+        this.__ctx = getConfig("Telegram");
         this.__token = this.__ctx["token"];
         this.__bot = new Telegraf(this.__token);
         this.__channel = null;

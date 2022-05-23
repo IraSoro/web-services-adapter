@@ -8,6 +8,12 @@ const cfg = new Conf({
     cwd: ".config",
     configName: "common",
     schema: {
+        Auth: {
+            type: "object",
+            properties: {
+                secret: { type: "string" }
+            }
+        },
         Telegram: {
             type: "object",
             properties: {
@@ -26,10 +32,17 @@ const cfg = new Conf({
                 redirectURI: { type: "string" }
             }
         }
+    },
+    migrations: {
+        "0.1.1": (store) => {
+            store.set("Auth", {
+                secret: ""
+            });
+        }
     }
 });
 
-function getAppContext(appName) {
+export function getConfig(appName) {
     if (!cfg.has(appName)) {
         throw new Error(`Cannot found ${appName} config`);
     }
@@ -43,14 +56,3 @@ function getAppContext(appName) {
         }
     });
 }
-
-const appletsStorage = new Conf({
-    cwd: ".config",
-    configName: "applets"
-});
-
-
-export {
-    getAppContext,
-    appletsStorage as AppletsStorage
-};
