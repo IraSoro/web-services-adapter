@@ -127,8 +127,34 @@ const CreationFlow = () => {
                 <AppSelector
                     triggersOnly
                     onAppClick={(app) => {
-                        applet.trigger.app = app;
-                        setActiveStep((step) => step + 1);
+                        fetch(`/${app.toLowerCase()}/status`, {
+                            method: "POST",
+                            headers: {
+                                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+                            }
+                        })
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(resp.status);
+                                }
+                                return resp.json();
+                            })
+                            .then((json) => {
+                                if (!json.connected) {
+                                    navigate(`/apps/${app}`);
+                                } else {
+                                    applet.trigger.app = app;
+                                    setActiveStep((step) => step + 1);
+                                }
+                            })
+                            .catch((err) => {
+                                if (err.message == 404) {
+                                    navigate("/NotFound");
+                                } else if (err.message == 401) {
+                                    navigate("/signIn");
+                                }
+                                console.error(err);
+                            });
                     }}
                 />
             )
@@ -164,8 +190,34 @@ const CreationFlow = () => {
                 <AppSelector
                     actionsOnly
                     onAppClick={(app) => {
-                        applet.action.app = app;
-                        setActiveStep((step) => step + 1);
+                        fetch(`/${app.toLowerCase()}/status`, {
+                            method: "POST",
+                            headers: {
+                                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+                            }
+                        })
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    throw new Error(resp.status);
+                                }
+                                return resp.json();
+                            })
+                            .then((json) => {
+                                if (!json.connected) {
+                                    navigate(`/apps/${app}`);
+                                } else {
+                                    applet.action.app = app;
+                                    setActiveStep((step) => step + 1);
+                                }
+                            })
+                            .catch((err) => {
+                                if (err.message == 404) {
+                                    navigate("/NotFound");
+                                } else if (err.message == 401) {
+                                    navigate("/signIn");
+                                }
+                                console.error(err);
+                            });
                     }}
                 />
             )

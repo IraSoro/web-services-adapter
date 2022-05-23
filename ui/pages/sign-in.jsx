@@ -28,14 +28,12 @@ export const SignIn = () => {
             }
         })
             .then((resp) => {
-                console.log(resp);
                 if (!resp.ok) {
                     throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
                 }
                 return resp.json();
             })
             .then((json) => {
-                console.log(json);
                 localStorage.setItem("TokenType", json.tokenType);
                 localStorage.setItem("AccessToken", json.accessToken);
                 navigate("/");

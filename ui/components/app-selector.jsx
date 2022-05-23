@@ -3,9 +3,6 @@ import React, {
     useEffect
 } from "react";
 import {
-    useNavigate
-} from "react-router-dom";
-import {
     Avatar,
     Container,
     Stack,
@@ -46,7 +43,6 @@ const AppCard = (props) => {
 };
 
 const AppsList = (props) => {
-    const navigate = useNavigate();
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
@@ -80,11 +76,7 @@ const AppsList = (props) => {
                 key={app.name}
                 name={app.name}
                 icon={app.icon}
-                onClick={
-                    app.connected
-                        ? props.onAppClick
-                        : () => navigate(`/apps/${app.name}`)
-                }
+                onClick={() => props.onAppClick(app.name)}
             />
         );
     });
