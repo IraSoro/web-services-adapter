@@ -18,7 +18,7 @@ class ApplicationsManager {
         this.__apps.set("Telegram", new Telegram());
 
         this.__icons = new Map();
-        this.__icons.set("Telegram", "icons8-telegram-app-48.png");
+        this.__icons.set("Telegram", "icons8-telegram-app.png");
     }
 
     __getApplicationProperties(name, app) {
