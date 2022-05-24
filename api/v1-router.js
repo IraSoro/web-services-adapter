@@ -158,7 +158,7 @@ const createAppsRouter = () => {
     /* TODO @imblowfish: Мне не нравится, что тут дублируется поведение для /apps и apps/search
      * нужно на стороне frontend проверять, если фильтр пустой, то обращаться к /apps, если не пустой, то к поиску приложения
      */
-    router.get(["/", "/search"], (_, res) => {
+    router.get("/", (_, res) => {
         try {
             res.json(ApplicationsManager.applications);
         } catch (err) {
