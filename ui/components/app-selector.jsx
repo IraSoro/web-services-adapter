@@ -49,62 +49,35 @@ const AppsList = (props) => {
     const navigate = useNavigate();
     const [apps, setApps] = useState([]);
 
-    if (!props.filter) {
-        useEffect(() => {
-            fetch("/api/v1/apps", {
-                headers: {
-                    "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+    useEffect(() => {
+        const url = props.filter
+            ? `/api/v1/apps/${props.filter}/search`
+            : "/api/v1/apps";
+        fetch(url, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(resp.status);
                 }
-            })
-                .then((resp) => {
-                    if (!resp.ok) {
-                        throw new Error(resp.status);
-                    }
-    
-                    return resp.json();
-                })
-                .then((apps) => {
-                    if (props.triggersOnly) {
-                        return setApps(apps.filter((app) => app.triggers.length > 0));
-                    } else if (props.actionsOnly) {
-                        return setApps(apps.filter((app) => app.actions.length > 0));
-                    }
-    
-                    return setApps(apps);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        }, [props.filter]);
-    }else{
 
-        useEffect(() => {
-            fetch(`/api/v1/apps/${props.filter ?? ""}/search`, {
-                headers: {
-                    "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+                return resp.json();
+            })
+            .then((apps) => {
+                if (props.triggersOnly) {
+                    return setApps(apps.filter((app) => app.triggers.length > 0));
+                } else if (props.actionsOnly) {
+                    return setApps(apps.filter((app) => app.actions.length > 0));
                 }
+
+                return setApps(apps);
             })
-                .then((resp) => {
-                    if (!resp.ok) {
-                        throw new Error(resp.status);
-                    }
-
-                    return resp.json();
-                })
-                .then((apps) => {
-                    if (props.triggersOnly) {
-                        return setApps(apps.filter((app) => app.triggers.length > 0));
-                    } else if (props.actionsOnly) {
-                        return setApps(apps.filter((app) => app.actions.length > 0));
-                    }
-
-                    return setApps(apps);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        }, [props.filter]);
-    }
+            .catch((err) => {
+                console.error(err);
+            });
+    }, [props.filter]);
 
     const appCards = apps.map((app) => {
         return (
