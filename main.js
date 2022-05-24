@@ -9,8 +9,8 @@ import { getConfig } from "./core/cfg.js";
 import { ApplicationsManager } from "./core/managers.js";
 
 
-const host = process.env.HOST ?? "localhost";
-const port = process.env.PORT ?? 3000;
+const host = process.env.HOST ?? getConfig("Settings").host ?? "localhost";
+const port = process.env.PORT ?? getConfig("Settings").port ?? 3000;
 
 const app = express();
 

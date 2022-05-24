@@ -70,7 +70,8 @@ const createAuthRouter = () => {
             username: username,
             uuid: uuidV4(),
             hashedPassword: await hashPassword(password),
-            applets: []
+            applets: [],
+            accounts: {}
         });
 
         res.status(200).send();

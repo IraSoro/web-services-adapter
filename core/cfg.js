@@ -8,6 +8,13 @@ const cfg = new Conf({
     cwd: ".config",
     configName: "common",
     schema: {
+        Settings: {
+            type: "object",
+            properties: {
+                host: { type: "string" },
+                port: { type: "number" }
+            }
+        },
         Auth: {
             type: "object",
             properties: {
@@ -35,9 +42,13 @@ const cfg = new Conf({
     },
     // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе
     migrations: {
-        "0.1.1": (store) => {
+        "0.1.2": (store) => {
             store.set("Auth", {
                 secret: ""
+            });
+            store.set("Settings", {
+                host: "localhost",
+                port: 3000
             });
         }
     }

@@ -16,7 +16,7 @@ export async function comparePasswordAndHash(password, hashedPassword) {
 function signToken(userId, secretKey, expiresIn) {
     return new Promise((resolve, reject) => {
         const opts = {
-            issuer: "http://localhost",
+            issuer: getConfig("Settings").host,
             audience: userId,
             expiresIn: expiresIn
         };

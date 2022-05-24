@@ -3,6 +3,7 @@ import { Telegraf } from "telegraf";
 import fetch from "node-fetch";
 
 import { createSubscriber } from "../utils/fastmq.js";
+import { Users } from "../storages.js";
 import {
     App,
     Action,
@@ -87,34 +88,50 @@ export class Telegram extends App {
 
     getRouter() {
         const router = new express.Router();
-        router.post("/telegram/authcallback", (req, res) => {
-            if (req.body.chatID) {
-                if (this._ctx.chatID == req.body.chatID) {
-                    res.json({
-                        res: "Success",
-                        msg: "Already connected"
-                    });
-                    return;
-                }
-                this._ctx.chatID = req.body.chatID;
-                this._ctx.username = req.body.username;
-                res.json({
-                    res: "Success"
-                });
-            } else {
-                res.json({
-                    res: "Failed",
-                    description: "Invalid auth callback param",
-                    reason: "chatID is undefined"
+
+        router.get("/telegram/authcallback", (req, res) => {
+            const user = Users.by("uuid", req.session.uuid);
+            if (!user) {
+                return res.status(401).json({
+                    message: "Unknown user, authorize"
                 });
             }
+            user.accounts["Telegram"] = JSON.parse(JSON.stringify({
+                username: req.query.username,
+                chatID: req.query.chatID,
+            }));
+            Users.update(user);
+            res.redirect("/");
         });
-        router.get("/telegram/chats", (_, res) => {
+
+        router.post("/telegram/status", (req, res) => {
+            let connected = false;
+            if (req.session.uuid) {
+                const user = Users.by("uuid", req.session.uuid);
+                connected = !!user.accounts["Telegram"];
+            } else {
+                const users = Users.where((user) => {
+                    const telegram = user.accounts["Telegram"];
+                    return telegram && telegram.chatID == req.body.chatID
+                        && telegram.username == req.body.username;
+                });
+                connected = users.length;
+            }
+            return res.status(200).json({
+                connected: connected,
+                authURL: this.getAuthURL()
+            });
+        });
+
+        router.get("/telegram/chats", (req, res) => {
+            const user = Users.by("uuid", req.session.uuid);
+            if (!user) {
+                return res.status(401).json({
+                    message: "Unknown user, authorize"
+                });
+            }
             res.json([
-                {
-                    chatID: this._ctx.chatID,
-                    username: this._ctx.username
-                }
+                user?.accounts?.["Telegram"]
             ]);
         });
         return router;

@@ -20,26 +20,24 @@ const ConnectButton = (props) => {
     });
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.name}`, {
+        fetch(`/${props.name.toLowerCase()}/status`, {
+            method: "POST",
             headers: {
                 "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
             }
         })
-            .then((resp) => {
-                return resp.ok
-                    ? Promise.resolve(resp)
-                    : Promise.reject(resp);
-            })
             .then((resp) => {
                 if (!resp.ok) {
                     throw new Error(resp.status);
                 }
                 return resp.json();
             })
-            .then((app) => setConnection({
-                connected: app.connected,
-                authURL: app.authURL
-            }))
+            .then((json) => {
+                setConnection({
+                    connected: json.connected,
+                    authURL: json.authURL
+                });
+            })
             .catch((err) => {
                 if (err.message == 404) {
                     navigate("/NotFound");
