@@ -51,7 +51,10 @@ const AppsList = (props) => {
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.filter ?? ""}/search`, {
+        const url = props.filter
+            ? `/api/v1/apps/${props.filter}/search`
+            : "/api/v1/apps";
+        fetch(url, {
             headers: {
                 "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
             }
@@ -60,6 +63,7 @@ const AppsList = (props) => {
                 if (!resp.ok) {
                     throw new Error(resp.status);
                 }
+
                 return resp.json();
             })
             .then((apps) => {
@@ -68,6 +72,7 @@ const AppsList = (props) => {
                 } else if (props.actionsOnly) {
                     return setApps(apps.filter((app) => app.actions.length > 0));
                 }
+
                 return setApps(apps);
             })
             .catch((err) => {
