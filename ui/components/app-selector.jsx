@@ -24,8 +24,8 @@ const AppCard = (props) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "280px",
-                height: "280px",
+                width: "200px",
+                height: "200px",
                 cursor: "pointer"
             }}
             variant="outlined"
@@ -33,8 +33,8 @@ const AppCard = (props) => {
         >
             <Avatar
                 sx={{
-                    width: "240px",
-                    height: "240px"
+                    width: "128px",
+                    height: "128px"
                 }}
                 variant="square"
                 src={`/icons/${props.icon}`}
