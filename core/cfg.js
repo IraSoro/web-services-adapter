@@ -40,17 +40,19 @@ const cfg = new Conf({
             }
         },
         Cron: { type: "object"}
+        Webhook: { type: "object" }
     },
     // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе
     migrations: {
         "0.1.2": (store) => {
             store.set("Auth", {
-                secret: ""
+                secret: "<some_secret_here>"
             });
             store.set("Settings", {
                 host: "localhost",
                 port: 3000
             });
+            store.set("Webhook", {});
         }
     }
 });

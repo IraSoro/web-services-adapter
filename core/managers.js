@@ -2,6 +2,7 @@ import { TelegramBot } from "./utils/telegram-bot.js";
 import { FastMQServer } from "./utils/fastmq.js";
 import { Telegram } from "./apps/telegram.js";
 import { Cron } from "./apps/cron.js";
+import { Webhook } from "./apps/webhook.js";
 
 import { Users } from "./storages.js";
 
@@ -23,6 +24,11 @@ class ApplicationsManager {
         this.__icons.set("Telegram", "icons8-telegram-app.png");
         this.__icons.set("Cron", "icons8-cron.png");
 
+        this.__apps.set("Webhook", new Webhook());
+
+        this.__icons = new Map();
+        this.__icons.set("Telegram", "icons8-telegram-app.png");
+        this.__icons.set("Webhook", "icons8-webhook.png");
     }
 
     __getApplicationProperties(name, app) {
