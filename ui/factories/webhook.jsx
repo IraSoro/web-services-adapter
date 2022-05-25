@@ -64,7 +64,7 @@ const SendRequestAction = (props) => {
                             method: method,
                             url: url,
                             requestType: requestType,
-                            body: JSON.parse(body)
+                            body: body ? JSON.parse(body) : undefined
                         });
                     }
                 }}
