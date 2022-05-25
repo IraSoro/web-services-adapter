@@ -6,14 +6,11 @@ import {
 } from "@mui/material";
 import { isValidCron } from "cron-validator";
 
-const TimingTrigger = (props) => {
+const OnScheduleTrigger  = (props) => {
     const [timing, setTiming] = useState("");
 
     const isValidate = () => {
-        if (isValidCron(timing)) {
-            return true;
-        }
-        return false;
+        return isValidCron(timing);
     };
 
     return (
@@ -49,8 +46,8 @@ const TimingTrigger = (props) => {
 export class CronFactory {
     createTrigger(name, props) {
         switch (name) {
-            case "Timing":
-                return <TimingTrigger {...props} />;
+            case "On Schedule":
+                return <OnScheduleTrigger  {...props} />;
             default:
                 throw new Error("Unknown action name");
         }

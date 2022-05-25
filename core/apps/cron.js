@@ -1,6 +1,4 @@
 import express from "express";
-// import fetch from "node-fetch";
-
 import cron from "node-cron";
 
 import {
@@ -9,7 +7,7 @@ import {
 } from "./app.js";
 
 
-class Timing extends Trigger {
+class OnSchedule extends Trigger {
     constructor(ctx, args) {
         super(ctx, args);
     }
@@ -32,7 +30,7 @@ export class Cron extends App {
         super("Cron");
 
         this._triggers = {
-            "Timing": Timing
+            "On Schedule": OnSchedule
         };
 
     }
