@@ -1,6 +1,7 @@
 import { TelegramBot } from "./utils/telegram-bot.js";
 import { FastMQServer } from "./utils/fastmq.js";
 import { Telegram } from "./apps/telegram.js";
+import { Cron } from "./apps/cron.js";
 
 import { Users } from "./storages.js";
 
@@ -16,9 +17,12 @@ class ApplicationsManager {
     constructor() {
         this.__apps = new Map();
         this.__apps.set("Telegram", new Telegram());
+        this.__apps.set("Cron", new Cron());
 
         this.__icons = new Map();
         this.__icons.set("Telegram", "icons8-telegram-app.png");
+        this.__icons.set("Cron", "icons8-cron.png");
+
     }
 
     __getApplicationProperties(name, app) {
