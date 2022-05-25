@@ -16,10 +16,13 @@ class Timing extends Trigger {
 
     getFn() {        
         return async (cb) => {
-            const res = cron.schedule("1 * * * *", () => {
-                console.log("running every minute 1");
+            const p = new Promise((resolve) => {
+                cron.schedule(this._args.timing, () => {
+                    resolve();
+                });
             });
-            cb(res);
+            await p;
+            cb(true);
         };
     }
 }
@@ -34,15 +37,15 @@ export class Cron extends App {
 
     }
 
+    isAlreadyConnected() {
+        return true;
+    }
+
     getRouter() {
         const router = express.Router();
 
         router.post("/cron/status", (_, res) => res.status(200).json({ connected: true }));
 
         return router;
-    }
-
-    async check() {
-
     }
 }

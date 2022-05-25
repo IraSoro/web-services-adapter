@@ -17,12 +17,12 @@ class ApplicationsManager {
     constructor() {
         this.__apps = new Map();
         this.__apps.set("Telegram", new Telegram());
+        this.__apps.set("Cron", new Cron());
 
         this.__icons = new Map();
-        this.__icons.set("Telegram", "icons8-telegram-app-48.png");
+        this.__icons.set("Telegram", "icons8-telegram-app.png");
+        this.__icons.set("Cron", "icons8-cron.png");
 
-        this.__apps.set("Cron", new Cron());
-        this.__icons.set("Cron", "icons8-blank-48.png");
     }
 
     __getApplicationProperties(name, app) {
