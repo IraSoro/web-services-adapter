@@ -39,7 +39,7 @@ const cfg = new Conf({
                 redirectURI: { type: "string" }
             }
         },
-        Cron: { type: "object"}
+        Cron: { type: "object"},
         Webhook: { type: "object" }
     },
     // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе

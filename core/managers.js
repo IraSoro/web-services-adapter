@@ -19,15 +19,11 @@ class ApplicationsManager {
         this.__apps = new Map();
         this.__apps.set("Telegram", new Telegram());
         this.__apps.set("Cron", new Cron());
-
-        this.__icons = new Map();
-        this.__icons.set("Telegram", "icons8-telegram-app.png");
-        this.__icons.set("Cron", "icons8-cron.png");
-
         this.__apps.set("Webhook", new Webhook());
 
         this.__icons = new Map();
         this.__icons.set("Telegram", "icons8-telegram-app.png");
+        this.__icons.set("Cron", "icons8-cron.png");
         this.__icons.set("Webhook", "icons8-webhook.png");
     }
 
