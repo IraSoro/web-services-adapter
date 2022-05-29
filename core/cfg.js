@@ -39,12 +39,11 @@ const cfg = new Conf({
                 redirectURI: { type: "string" }
             }
         },
-        Cron: { type: "object"},
+        Cron: { type: "object" },
         Webhook: { type: "object" }
     },
-    // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе
     migrations: {
-        "0.1.2": (store) => {
+        "0.2.0": (store) => {
             store.set("Auth", {
                 secret: "<some_secret_here>"
             });
@@ -52,6 +51,7 @@ const cfg = new Conf({
                 host: "localhost",
                 port: 3000
             });
+            store.set("Cron", {});
             store.set("Webhook", {});
         }
     }
