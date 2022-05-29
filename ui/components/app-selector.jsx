@@ -3,9 +3,6 @@ import React, {
     useEffect
 } from "react";
 import {
-    useNavigate
-} from "react-router-dom";
-import {
     Avatar,
     Container,
     Stack,
@@ -24,19 +21,24 @@ const AppCard = (props) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "150px",
-                height: "150px",
+                width: "200px",
+                height: "200px",
                 cursor: "pointer"
             }}
             variant="outlined"
             onClick={() => props.onClick(props.name)}
         >
             <Avatar
+                sx={{
+                    width: "128px",
+                    height: "128px"
+                }}
                 variant="square"
                 src={`/icons/${props.icon}`}
             />
             <Typography
-                variant="body2"
+                component="h1"
+                variant="h5"
                 color="text.secondary"
             >
                 {props.name}
@@ -46,15 +48,22 @@ const AppCard = (props) => {
 };
 
 const AppsList = (props) => {
-    const navigate = useNavigate();
     const [apps, setApps] = useState([]);
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.filter ?? ""}/search`)
+        const url = props.filter
+            ? `/api/v1/apps/${props.filter}/search`
+            : "/api/v1/apps";
+        fetch(url, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => {
                 if (!resp.ok) {
-                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                    throw new Error(resp.status);
                 }
+
                 return resp.json();
             })
             .then((apps) => {
@@ -63,9 +72,12 @@ const AppsList = (props) => {
                 } else if (props.actionsOnly) {
                     return setApps(apps.filter((app) => app.actions.length > 0));
                 }
+
                 return setApps(apps);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => {
+                console.error(err);
+            });
     }, [props.filter]);
 
     const appCards = apps.map((app) => {
@@ -74,11 +86,7 @@ const AppsList = (props) => {
                 key={app.name}
                 name={app.name}
                 icon={app.icon}
-                onClick={
-                    app.connected
-                        ? props.onAppClick
-                        : () => navigate(`/apps/${app.name}`)
-                }
+                onClick={() => props.onAppClick(app.name)}
             />
         );
     });

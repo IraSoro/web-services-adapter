@@ -20,26 +20,30 @@ const ConnectButton = (props) => {
     });
 
     useEffect(() => {
-        fetch(`/api/v1/apps/${props.name}`)
-            .then((resp) => {
-                return resp.ok
-                    ? Promise.resolve(resp)
-                    : Promise.reject(resp);
-            })
+        fetch(`/${props.name.toLowerCase()}/status`, {
+            method: "POST",
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
             .then((resp) => {
                 if (!resp.ok) {
-                    throw new Error(`Response status ${resp.status}: ${resp.statusText}`);
+                    throw new Error(resp.status);
                 }
                 return resp.json();
             })
-            .then((app) => setConnection({
-                connected: app.connected,
-                authURL: app.authURL
-            }))
+            .then((json) => {
+                setConnection({
+                    connected: json.connected,
+                    authURL: json.authURL
+                });
+            })
             .catch((err) => {
-                if (err?.status == 404) {
+                if (err.message == 404) {
                     navigate("/NotFound");
-                } 
+                } else if (err.message == 401) {
+                    navigate("/signIn");
+                }
                 console.error(err);
             });
     }, []);
@@ -65,6 +69,25 @@ const ConnectButton = (props) => {
 };
 
 export const AppInformation = (props) => {
+    const [iconPath, setIconPath] = useState("");
+
+    useEffect(() => {
+        fetch(`/api/v1/apps/${props.name}`, {
+            headers: {
+                "Authorization": `${localStorage.getItem("TokenType")} ${localStorage.getItem("AccessToken")}`
+            }
+        })
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error(resp.status);
+                }
+                return resp.json();
+            })
+            .then((json) => {
+                setIconPath(`/icons/${json.icon}`);
+            });
+    }, []);
+
     return (
         <Box
             sx={{
@@ -75,8 +98,12 @@ export const AppInformation = (props) => {
             }}
         >
             <Avatar
+                sx={{
+                    width: "240px",
+                    height: "240px"
+                }}
                 variant="square"
-                src={`/api/v1/apps/${props.name}/icon`}
+                src={iconPath}
             />
             <ConnectButton name={props.name} />
         </Box>

@@ -8,6 +8,19 @@ const cfg = new Conf({
     cwd: ".config",
     configName: "common",
     schema: {
+        Settings: {
+            type: "object",
+            properties: {
+                host: { type: "string" },
+                port: { type: "number" }
+            }
+        },
+        Auth: {
+            type: "object",
+            properties: {
+                secret: { type: "string" }
+            }
+        },
         Telegram: {
             type: "object",
             properties: {
@@ -25,11 +38,26 @@ const cfg = new Conf({
                 clientSecret: { type: "string" },
                 redirectURI: { type: "string" }
             }
+        },
+        Cron: { type: "object"},
+        Webhook: { type: "object" }
+    },
+    // TODO @imblowfish: сменить тут версию на 0.2.0 при релизе
+    migrations: {
+        "0.1.2": (store) => {
+            store.set("Auth", {
+                secret: "<some_secret_here>"
+            });
+            store.set("Settings", {
+                host: "localhost",
+                port: 3000
+            });
+            store.set("Webhook", {});
         }
     }
 });
 
-function getAppContext(appName) {
+export function getConfig(appName) {
     if (!cfg.has(appName)) {
         throw new Error(`Cannot found ${appName} config`);
     }
@@ -43,14 +71,3 @@ function getAppContext(appName) {
         }
     });
 }
-
-const appletsStorage = new Conf({
-    cwd: ".config",
-    configName: "applets"
-});
-
-
-export {
-    getAppContext,
-    appletsStorage as AppletsStorage
-};

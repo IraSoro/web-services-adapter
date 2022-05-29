@@ -1,13 +1,13 @@
 import fetch from "node-fetch";
 import { Telegraf } from "telegraf";
 
-import { getAppContext } from "../cfg.js";
+import { getConfig } from "../cfg.js";
 import { createChannel } from "./fastmq.js";
 
 
 export class TelegramBot {
     constructor() {
-        this.__ctx = getAppContext("Telegram");
+        this.__ctx = getConfig("Telegram");
         this.__token = this.__ctx["token"];
         this.__bot = new Telegraf(this.__token);
         this.__channel = null;
@@ -28,22 +28,30 @@ export class TelegramBot {
         });
 
         this.__bot.command("connect", async (ctx) => {
-            try {
-                const response = await fetch(this.__ctx["redirectURI"], {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        chatID: ctx.message.chat.id,
-                        username: ctx.message.chat.username
-                    })
-                });
-                const json = await response.json();
-                ctx.reply(`Successfully connected ${JSON.stringify(json)}`);
-            } catch (err) {
-                console.error("Failed", JSON.stringify(err));
+            const addr = `http://${getConfig("Settings").host}:${getConfig("Settings").port}`;
+            const redirectURI = addr + this.__ctx.redirectURI;
+            const username = ctx.message.chat.username;
+            const chatID = ctx.message.chat.id;
+
+            const resp = await fetch(addr + this.__ctx.statusURI, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chatID: chatID,
+                    username: username
+                })
+            });
+
+            const json = await resp.json();
+
+            if (!json.connected) {
+                const followLink = `${redirectURI}?app=Telegram&chatID=${chatID}&username=${username}`;
+                ctx.reply(`Please follow this link to connect ${followLink}`);
+            } else {
+                ctx.reply("Already connected");
             }
         });
 

@@ -10,7 +10,9 @@ import {
     Create,
     MyApplets,
     Explore,
-    NotFound
+    NotFound,
+    SignUp,
+    SignIn
 } from "./pages";
 
 
@@ -19,6 +21,14 @@ const App = () => {
         {
             path: "/",
             element: <MyApplets />,
+        },
+        {
+            path: "/signIn",
+            element: <SignIn />
+        },
+        {
+            path: "/signUp",
+            element: <SignUp />
         },
         {
             path: "explore",

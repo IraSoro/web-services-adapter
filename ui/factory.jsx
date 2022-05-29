@@ -1,4 +1,6 @@
 import { TelegramFactory } from "./factories/telegram";
+import { CronFactory } from "./factories/cron";
+import { WebhookFactory } from "./factories/webhook";
 
 
 class UnknownApplicationError extends Error {
@@ -12,6 +14,8 @@ class UnknownApplicationError extends Error {
 export const AppFactory = (props) => {
     const factories = {
         "Telegram": TelegramFactory,
+        "Cron": CronFactory,
+        "Webhook": WebhookFactory
     };
     if (!Object.keys(factories).includes(props.app)) {
         throw new UnknownApplicationError(props.app);
